@@ -1,0 +1,6 @@
+com\copecute\mgo\server\GameServerHandler.class
+com\copecute\mgo\server\Player.class
+com\copecute\mgo\server\GameServer$1.class
+com\copecute\mgo\server\PlayerManager.class
+com\copecute\mgo\server\GameServer.class
+com\copecute\mgo\server\DatabaseManager.class
