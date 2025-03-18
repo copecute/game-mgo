@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.List;
 
 // quản lý map game
-public class GameMap extends JPanel {
+public class GamePlay extends JPanel {
     private static final int TILE_SIZE = 32;
     private static final int MAP_WIDTH = 50;
     private static final int MAP_HEIGHT = 50;
@@ -41,6 +41,8 @@ public class GameMap extends JPanel {
     private boolean canChat = false; // biến để kiểm tra có thể chat hay không
     private int lastSentTileX = -1; // vị trí ô cuối cùng đã gửi lên server (X)
     private int lastSentTileY = -1; // vị trí ô cuối cùng đã gửi lên server (Y)
+    private BufferedImage grassImage; // hình ảnh cho ô cỏ
+    private BufferedImage obstacleImage; // hình ảnh cho chướng ngại vật
     
     // lưu thông tin người chơi
     private static class PlayerInfo {
@@ -71,7 +73,7 @@ public class GameMap extends JPanel {
         }
     }
 
-    public GameMap(GameClient gameClient) {
+    public GamePlay(GameClient gameClient) {
         this.gameClient = gameClient;
         players = new HashMap<>();
         mapData = new int[MAP_HEIGHT][MAP_WIDTH];
@@ -105,6 +107,14 @@ public class GameMap extends JPanel {
             System.err.println("❌ lỗi load ảnh nhân vật: " + e.getMessage());
             // tạo sprite mặc định
             playerSprite = createDefaultSprite();
+        }
+        
+        // load hình ảnh cho ô cỏ và chướng ngại vật
+        try {
+            grassImage = ImageIO.read(getClass().getResourceAsStream("/co.png"));
+            obstacleImage = ImageIO.read(getClass().getResourceAsStream("/cay.png"));
+        } catch (IOException e) {
+            System.err.println("❌ lỗi load hình ảnh: " + e.getMessage());
         }
         
         // tạo map đơn giản
@@ -614,12 +624,16 @@ public class GameMap extends JPanel {
         for (int y = 0; y < MAP_HEIGHT; y++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 if (mapData[y][x] == 0) {
-                    g.setColor(new Color(34, 139, 34)); // màu cỏ
+                    // vẽ ô cỏ
+                    g.drawImage(grassImage, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, this);
                 } else {
-                    g.setColor(new Color(139, 69, 19)); // màu tường
+                    // vẽ chướng ngại vật với kích thước lớn hơn
+                    int obstacleWidth = 70; // chiều rộng của chướng ngại vật
+                    int obstacleHeight = 71; // chiều cao của chướng ngại vật
+                    g.drawImage(obstacleImage, x * TILE_SIZE - (obstacleWidth - TILE_SIZE) / 2, 
+                                y * TILE_SIZE - (obstacleHeight - TILE_SIZE), 
+                                obstacleWidth, obstacleHeight, this);
                 }
-                g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                
                 // vẽ viền ô
                 g.setColor(new Color(0, 0, 0, 50));
                 g.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);

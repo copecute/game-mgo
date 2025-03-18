@@ -25,7 +25,7 @@ public class GameClient {
     private CardLayout cardLayout;
     private JPanel loginPanel;
     private JPanel gamePanel;
-    private GameMap gameMap;
+    private GamePlay gameMap;
     private String username;
 
     public GameClient(String host, int port) {
@@ -69,7 +69,7 @@ public class GameClient {
         gamePanel = new JPanel(new BorderLayout());
         
         // tạo game map
-        gameMap = new GameMap(this);
+        gameMap = new GamePlay(this);
         JScrollPane mapScroll = new JScrollPane(gameMap);
         
         // thêm vào panel game
