@@ -1,5 +1,7 @@
 package com.copecute.mgo.client;
-
+import com.copecute.mgo.client.player.PlayerInfo;
+import com.copecute.mgo.client.renderer.GameRenderer;
+import com.copecute.mgo.client.pathfinding.PathFinder;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -26,53 +28,27 @@ public class GamePlay extends JPanel {
     private static final int CHAT_DISPLAY_TIME = 5000; // hiển thị chat trong 5 giây
     private static final int CHAT_DELAY = 1000; // delay 1 giây sau khi đăng nhập mới cho chat
     
-    private final int[][] mapData; // 0: cỏ, 1: tường
-    private final Map<String, PlayerInfo> players; // lưu thông tin người chơi
-    private String currentPlayer; // người chơi hiện tại
-    private BufferedImage mapBuffer; // buffer để vẽ map
-    private final javax.swing.Timer moveTimer; // timer để update di chuyển
-    private final Set<Integer> pressedKeys; // các phím đang được nhấn
-    private Point targetPosition; // vị trí đích khi click chuột
-    private Point cameraPosition; // vị trí camera hiện tại
-    private BufferedImage playerSprite; // sprite sheet nhân vật
-    private JTextField chatInput; // ô nhập chat
-    private boolean isChatting = false; // đang chat hay không
+    private final int[][] mapData;
+    private final Map<String, PlayerInfo> players;
+    private String currentPlayer;
+    private BufferedImage mapBuffer;
+    private final javax.swing.Timer moveTimer;
+    private final Set<Integer> pressedKeys;
+    private Point targetPosition;
+    private Point cameraPosition;
+    private BufferedImage playerSprite;
+    private JTextField chatInput;
+    private boolean isChatting = false;
     private final GameClient gameClient;
-    private boolean canChat = false; // biến để kiểm tra có thể chat hay không
-    private int lastSentTileX = -1; // vị trí ô cuối cùng đã gửi lên server (X)
-    private int lastSentTileY = -1; // vị trí ô cuối cùng đã gửi lên server (Y)
-    private BufferedImage grassImage; // hình ảnh cho ô cỏ
-    private BufferedImage obstacleImage; // hình ảnh cho chướng ngại vật
+    private boolean canChat = false;
+    private int lastSentTileX = -1;
+    private int lastSentTileY = -1;
+    private BufferedImage grassImage;
+    private BufferedImage obstacleImage;
     
-    // lưu thông tin người chơi
-    private static class PlayerInfo {
-        Point position; // vị trí theo ô (tile)
-        Point pixelPosition; // vị trí theo pixel
-        List<Point> path; // đường đi tới đích
-        boolean isMoving; // trạng thái di chuyển
-        int frameIndex; // frame hiện tại của animation
-        long lastFrameTime; // thời điểm frame cuối
-        boolean facingRight; // hướng nhân vật (true: phải, false: trái)
-        String chatMessage; // nội dung chat
-        long chatTime; // thời điểm chat
-        
-        // Thêm điểm đích để di chuyển mượt
-        Point targetPosition;
-        
-        PlayerInfo(Point position) {
-            this.position = position;
-            this.pixelPosition = new Point(position.x * TILE_SIZE, position.y * TILE_SIZE);
-            this.path = new ArrayList<>();
-            this.isMoving = false;
-            this.frameIndex = 0;
-            this.lastFrameTime = System.currentTimeMillis();
-            this.facingRight = true;
-            this.chatMessage = null;
-            this.chatTime = 0;
-            this.targetPosition = new Point(position);
-        }
-    }
-
+    private final PathFinder pathFinder;
+    private final GameRenderer gameRenderer;
+    
     public GamePlay(GameClient gameClient) {
         this.gameClient = gameClient;
         players = new HashMap<>();
@@ -208,6 +184,9 @@ public class GamePlay extends JPanel {
             }
         });
         moveTimer.start();
+
+        this.pathFinder = new PathFinder(mapData, MAP_WIDTH, MAP_HEIGHT);
+        this.gameRenderer = new GameRenderer(mapBuffer, playerSprite, this);
     }
 
     private void updateCamera() {
@@ -525,96 +504,7 @@ public class GamePlay extends JPanel {
     }
 
     private List<Point> findPath(Point start, Point end) {
-        // Nếu điểm đích không thể di chuyển tới, trả về danh sách trống
-        if (!canMoveTo(end.x, end.y)) return new ArrayList<>();
-        
-        // Nếu điểm đích trùng với điểm xuất phát, không cần di chuyển
-        if (start.equals(end)) return new ArrayList<>();
-        
-        // Thuật toán A* để tìm đường đi
-        PriorityQueue<Node> openSet = new PriorityQueue<>();
-        Set<Point> closedSet = new HashSet<>();
-        Map<Point, Point> cameFrom = new HashMap<>();
-        Map<Point, Integer> gScore = new HashMap<>();
-        
-        Node startNode = new Node(start, 0 + heuristic(start, end));
-        openSet.add(startNode);
-        gScore.put(start, 0);
-        
-        // Giới hạn số bước tìm kiếm để tránh tìm quá lâu
-        int maxIterations = 1000;
-        int iterations = 0;
-        
-        while (!openSet.isEmpty() && iterations < maxIterations) {
-            iterations++;
-            Node current = openSet.poll();
-            
-            // Nếu đã đến đích, tái tạo và trả về đường đi
-            if (current.pos.equals(end)) {
-                List<Point> path = reconstructPath(cameFrom, current.pos);
-                return path;
-            }
-            
-            closedSet.add(current.pos);
-            
-            // Xét 4 hướng di chuyển (lên, xuống, trái, phải)
-            int[][] dirs = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-            for (int[] dir : dirs) {
-                Point next = new Point(current.pos.x + dir[0], current.pos.y + dir[1]);
-                
-                // Bỏ qua nếu vị trí kế tiếp đã xét rồi
-                if (closedSet.contains(next)) continue;
-                
-                // Bỏ qua nếu vị trí kế tiếp không thể di chuyển tới (tường hoặc ngoài map)
-                if (!canMoveTo(next.x, next.y)) continue;
-                
-                // Tính điểm G (khoảng cách từ điểm xuất phát)
-                int tentativeG = gScore.get(current.pos) + 1;
-                
-                // Cập nhật đường đi tốt hơn nếu tìm thấy
-                if (!gScore.containsKey(next) || tentativeG < gScore.get(next)) {
-                    cameFrom.put(next, current.pos);
-                    gScore.put(next, tentativeG);
-                    
-                    // Tính điểm F = G + H (khoảng cách từ xuất phát + dự đoán khoảng cách tới đích)
-                    int f = tentativeG + heuristic(next, end);
-                    openSet.add(new Node(next, f));
-                }
-            }
-        }
-        
-        // Nếu không tìm thấy đường đi, trả về danh sách trống
-        return new ArrayList<>();
-    }
-
-    private int heuristic(Point a, Point b) {
-        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-    }
-
-    private List<Point> reconstructPath(Map<Point, Point> cameFrom, Point current) {
-        List<Point> path = new ArrayList<>();
-        path.add(current);
-        while (cameFrom.containsKey(current)) {
-            current = cameFrom.get(current);
-            path.add(0, current);
-        }
-        path.remove(0); // bỏ vị trí hiện tại
-        return path;
-    }
-
-    private static class Node implements Comparable<Node> {
-        Point pos;
-        int f;
-        
-        Node(Point pos, int f) {
-            this.pos = pos;
-            this.f = f;
-        }
-        
-        @Override
-        public int compareTo(Node other) {
-            return Integer.compare(f, other.f);
-        }
+        return pathFinder.findPath(start, end);
     }
 
     private void renderMapToBuffer() {
@@ -651,76 +541,8 @@ public class GamePlay extends JPanel {
         PlayerInfo currentPlayerInfo = players.get(currentPlayer);
         if (currentPlayerInfo == null) return;
 
-        // vẽ phần map trong viewport
-        g.drawImage(mapBuffer, 
-            -cameraPosition.x, -cameraPosition.y, 
-            MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, 
-            this);
-        
-        // vẽ người chơi và chat
-        for (Map.Entry<String, PlayerInfo> entry : players.entrySet()) {
-            String username = entry.getKey();
-            PlayerInfo player = entry.getValue();
-            
-            int x = player.pixelPosition.x - cameraPosition.x;
-            int y = player.pixelPosition.y - cameraPosition.y;
-            
-            // chỉ vẽ người chơi trong viewport
-            if (x >= -TILE_SIZE && x <= VIEWPORT_WIDTH * TILE_SIZE &&
-                y >= -TILE_SIZE && y <= VIEWPORT_HEIGHT * TILE_SIZE) {
-                
-                // vẽ sprite nhân vật
-                int spriteX = player.frameIndex * SPRITE_WIDTH;
-                int spriteY = player.isMoving ? 0 : SPRITE_HEIGHT;
-                
-                if (player.facingRight) {
-                    g.drawImage(playerSprite,
-                        x, y, x + SPRITE_WIDTH, y + SPRITE_HEIGHT,
-                        spriteX, spriteY, spriteX + SPRITE_WIDTH, spriteY + SPRITE_HEIGHT,
-                        this);
-                } else {
-                    g.drawImage(playerSprite,
-                        x + SPRITE_WIDTH, y, x, y + SPRITE_HEIGHT,
-                        spriteX, spriteY, spriteX + SPRITE_WIDTH, spriteY + SPRITE_HEIGHT,
-                        this);
-                }
-                
-                // vẽ tên người chơi
-                FontMetrics fm = g.getFontMetrics();
-                int nameWidth = fm.stringWidth(username);
-                int nameX = x + (SPRITE_WIDTH - nameWidth) / 2;
-                
-                // vẽ nền cho tên
-                g.setColor(new Color(0, 0, 0, 180));
-                g.fillRoundRect(nameX - 2, y - 20, nameWidth + 4, 15, 5, 5);
-                
-                // vẽ tên người chơi
-                g.setColor(Color.WHITE);
-                g.drawString(username, nameX, y - 8);
-
-                // vẽ chat message nếu có (di chuyển lên trên tên)
-                if (player.chatMessage != null) {
-                    long currentTime = System.currentTimeMillis();
-                    if (currentTime - player.chatTime < CHAT_DISPLAY_TIME) {
-                        // vẽ nền chat
-                        int messageWidth = fm.stringWidth(player.chatMessage);
-                        int messageX = x + (SPRITE_WIDTH - messageWidth) / 2;
-                        
-                        // vẽ nền chat với viền
-                        g.setColor(new Color(0, 0, 0, 180));
-                        g.fillRoundRect(messageX - 5, y - 45, messageWidth + 10, 20, 10, 10);
-                        g.setColor(new Color(255, 255, 255, 100));
-                        g.drawRoundRect(messageX - 5, y - 45, messageWidth + 10, 20, 10, 10);
-                        
-                        // vẽ text chat
-                        g.setColor(Color.WHITE);
-                        g.drawString(player.chatMessage, messageX, y - 30);
-                    } else {
-                        player.chatMessage = null;
-                    }
-                }
-            }
-        }
+        gameRenderer.render(g, players, currentPlayer, cameraPosition, 
+                          VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
     }
 
     public void setCurrentPlayer(String username) {

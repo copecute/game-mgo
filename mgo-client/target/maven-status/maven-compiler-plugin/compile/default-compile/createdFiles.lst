@@ -1,9 +1,11 @@
+com\copecute\mgo\client\renderer\GameRenderer.class
 com\copecute\mgo\client\GameClient$1.class
 com\copecute\mgo\client\GamePlay$2.class
+com\copecute\mgo\client\pathfinding\PathFinder.class
 com\copecute\mgo\client\GamePlay$1.class
-com\copecute\mgo\client\GamePlay$PlayerInfo.class
+com\copecute\mgo\client\player\PlayerInfo.class
+com\copecute\mgo\client\pathfinding\PathFinder$Node.class
 com\copecute\mgo\client\GamePlay.class
 com\copecute\mgo\client\GameClient$2.class
 com\copecute\mgo\client\GameClientHandler.class
 com\copecute\mgo\client\GameClient.class
-com\copecute\mgo\client\GamePlay$Node.class
