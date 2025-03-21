@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://xxxx"]
+
+[ext_resource type="Script" path="res://UI/game_menu.gd" id="1_xxxx"]
+
+[node name="GameMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xxxx")
+
+[node name="MenuButton" type="Button" parent="."]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 50.0
+offset_bottom = 50.0
+text = "≡"
+theme_override_font_sizes/font_size = 24
+
+[node name="MenuBar" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="ChatButton" type="Button" parent="MenuBar/HBoxContainer"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "Chat"
+
+[node name="LogoutButton" type="Button" parent="MenuBar/HBoxContainer"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "Đăng xuất"
+
+[connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
+[connection signal="pressed" from="MenuBar/HBoxContainer/ChatButton" to="." method="_on_chat_button_pressed"]
+[connection signal="pressed" from="MenuBar/HBoxContainer/LogoutButton" to="." method="_on_logout_button_pressed"] 

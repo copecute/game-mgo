@@ -1,0 +1,82 @@
+[gd_scene load_steps=3 format=3 uid="uid://823lhl0s3vkb"]
+
+[ext_resource type="Script" uid="uid://ceiamqs3hpxit" path="res://Login/login.gd" id="1_q60jw"]
+[ext_resource type="Texture2D" uid="uid://bgyr6lu5iytda" path="res://assets/chuky-white.png" id="2_logo"]
+
+[node name="Login" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q60jw")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 2
+texture = ExtResource("2_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FormContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UsernameContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
+layout_mode = 2
+text = "Tên đăng nhập"
+
+[node name="UsernameField" type="LineEdit" parent="CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
+layout_mode = 2
+
+[node name="PasswordContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
+layout_mode = 2
+text = "Mật khẩu"
+
+[node name="PasswordField" type="LineEdit" parent="CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
+layout_mode = 2
+secret = true
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="btnLogin" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "Đăng nhập"
+
+[node name="btnRegister" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "Đăng ký"
+
+[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/btnRegister" to="." method="_on_btn_register_pressed"]

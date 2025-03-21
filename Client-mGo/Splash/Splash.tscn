@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://by8bg3aoi5vly"]
+
+[ext_resource type="Texture2D" uid="uid://bgyr6lu5iytda" path="res://assets/chuky-white.png" id="1_0vf8b"]
+[ext_resource type="Script" uid="uid://c30jdqf1x8bpr" path="res://Splash/splash.gd" id="1_wx0j5"]
+
+[node name="Splash" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_wx0j5")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 521.0
+offset_top = 377.0
+offset_right = 702.0
+offset_bottom = 400.0
+text = "Đang kết nối máy chủ..."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 186.0
+offset_right = 775.0
+offset_bottom = 403.0
+texture = ExtResource("1_0vf8b")
+expand_mode = 1

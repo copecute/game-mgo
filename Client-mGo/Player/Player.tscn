@@ -1,0 +1,63 @@
+[gd_scene load_steps=7 format=3 uid="uid://tbbvxwydt6py"]
+
+[ext_resource type="Script" uid="uid://ddje50j0np7v4" path="res://Player/player.gd" id="1_3qydi"]
+[ext_resource type="Texture2D" uid="uid://caachgb0qkodw" path="res://assets/player/m2600.png" id="2_tok1r"]
+[ext_resource type="Texture2D" uid="uid://uo1k7isyk3c1" path="res://assets/player/m2601.png" id="3_ddoul"]
+[ext_resource type="PackedScene" uid="uid://opcx7xna1u12" path="res://Player/ChatBubble.tscn" id="4_chat"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_l2ndj"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8g4oa"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_tok1r")
+}],
+"loop": true,
+"name": &"Idile",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ddoul")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_tok1r")
+}],
+"loop": true,
+"name": &"Run",
+"speed": 5.0
+}]
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_3qydi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1.5, -4)
+shape = SubResource("CapsuleShape2D_l2ndj")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-1.5, -5)
+sprite_frames = SubResource("SpriteFrames_8g4oa")
+animation = &"Run"
+frame_progress = 0.694886
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.8, 1.8)
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -64.0
+offset_top = -43.0
+offset_right = 64.0
+offset_bottom = -20.0
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+vertical_alignment = 1
+text_overrun_behavior = 1
+
+[node name="ChatBubble" parent="." instance=ExtResource("4_chat")]
+offset_left = -100.0
+offset_top = -99.0
+offset_right = 100.0
+offset_bottom = -49.0
