@@ -3,6 +3,11 @@ extends CharacterBody2D
 @export var speed := 120
 @onready var anim = $AnimatedSprite2D
 @onready var name_label = $NameLabel
+@onready var camera = $Camera2D
+
+# kích thước map tính bằng pixels
+const MAP_WIDTH = 72 * 16  # 72 tiles * 16 pixels
+const MAP_HEIGHT = 39 * 16 # 39 tiles * 16 pixels
 
 var target_position = Vector2.ZERO
 var moving_to_target = false
@@ -17,6 +22,13 @@ func _ready():
 	name_label.text = username
 	last_position = global_position
 	last_sent_position = global_position
+	
+	# thiết lập giới hạn camera
+	var viewport_size = get_viewport_rect().size
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = MAP_WIDTH
+	camera.limit_bottom = MAP_HEIGHT
 
 func _unhandled_input(event):
 	# Chỉ xử lý input cho nhân vật của mình

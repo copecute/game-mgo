@@ -1,7 +1,7 @@
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\mgo\Player.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\mgo\WebSocketHandler.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\mgo\Message.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\mgo\ServerMGO.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\database\Database.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\database\UserDAO.java
-D:\Project\mGO\Server-mGO\src\main\java\com\copecute\server\mgo\GameWorld.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\mgo\GameWorld.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\database\UserDAO.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\mgo\Player.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\mgo\WebSocketHandler.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\database\Database.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\mgo\Message.java
+D:\Project\game-mgo\Server-mGO\src\main\java\com\copecute\server\mgo\ServerMGO.java
