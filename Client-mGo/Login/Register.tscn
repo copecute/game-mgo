@@ -59,6 +59,17 @@ text = "Mật khẩu"
 layout_mode = 2
 secret = true
 
+[node name="ServerContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+layout_mode = 2
+text = "Chọn máy chủ"
+
+[node name="ServerOptionButton" type="OptionButton" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+layout_mode = 2
+
 [node name="ConnectionStatus" type="Label" parent="CenterContainer/VBoxContainer/FormContainer"]
 layout_mode = 2
 horizontal_alignment = 1

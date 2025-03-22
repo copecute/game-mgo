@@ -18,19 +18,25 @@ var touch_position = Vector2.ZERO  # vị trí chạm hiện tại
 var thumb_position = Vector2.ZERO  # vị trí của thumb
 var is_active = false  # joystick có đang được sử dụng không
 var output = Vector2.ZERO  # vector hướng đầu ra
-var center_position = Vector2.ZERO  # vị trí trung tâm của base
 
 func _ready():
 	# thiết lập ban đầu
 	if visibility_mode == 1:
 		base.modulate.a = 0.0
 	
-	# lưu vị trí trung tâm
-	center_position = Vector2.ZERO
+	# reset thumb về vị trí trung tâm để đảm bảo nó được đặt chính xác
+	reset_thumb()
 	
-	# đặt vị trí ban đầu của thumb
-	thumb.position = center_position
-
+func reset_thumb():
+	# đặt thumb chính xác vào giữa base
+	# cách tính vị trí trung tâm mới
+	var base_center = Vector2(base.size.x / 2, base.size.y / 2)
+	var thumb_offset = Vector2(thumb.size.x / 2, thumb.size.y / 2)
+	
+	# đặt vị trí gốc của thumb để tâm của nó nằm giữa base
+	thumb.position = base_center - thumb_offset
+	output = Vector2.ZERO
+	
 func _input(event):
 	# xử lý touch input
 	if event is InputEventScreenTouch:
@@ -54,8 +60,7 @@ func _input(event):
 				# reset joystick
 				is_active = false
 				touch_index = -1
-				thumb.position = center_position  # trở về vị trí trung tâm
-				output = Vector2.ZERO
+				reset_thumb()  # dùng hàm reset để đảm bảo vị trí chính xác
 				emit_signal("joystick_moved", output)
 				
 				# ẩn joystick nếu đang ở chế độ ẩn
@@ -76,21 +81,26 @@ func _process(_delta):
 		emit_signal("joystick_moved", output)
 
 func _update_thumb_position():
-	# tính toán vector từ tâm đến vị trí chạm
-	var direction = thumb_position.normalized()
-	var distance = thumb_position.length()
+	# tính toán các vị trí trung tâm
+	var base_center = Vector2(base.size.x / 2, base.size.y / 2)
+	var thumb_center = Vector2(thumb.size.x / 2, thumb.size.y / 2)
+	
+	# tính vector hướng từ trung tâm base đến điểm chạm
+	var direction = (thumb_position - base_center).normalized()
+	var distance = (thumb_position - base_center).length()
 	
 	# áp dụng deadzone
 	if distance < deadzone_size:
-		thumb.position = center_position
+		reset_thumb()
 		output = Vector2.ZERO
 		return
 	
 	# áp dụng clampzone
 	if distance > clampzone_size:
-		thumb.position = direction * clampzone_size
+		# đặt thumb vị trí mới, tính toán để tâm của thumb nằm đúng vị trí cần thiết
+		thumb.position = base_center + direction * clampzone_size - thumb_center
 	else:
-		thumb.position = thumb_position
+		thumb.position = thumb_position - thumb_center
 	
 	# tính toán output vector (0-1)
 	var normalized_distance = (distance - deadzone_size) / (clampzone_size - deadzone_size)
@@ -99,6 +109,6 @@ func _update_thumb_position():
 
 func _is_point_inside_area(point):
 	# kiểm tra xem điểm có nằm trong vùng joystick không
-	var center = base.global_position
+	var base_center = base.global_position + Vector2(base.size.x / 2, base.size.y / 2)
 	var radius = base.size.x / 2
-	return point.distance_to(center) < radius 
+	return point.distance_to(base_center) < radius 

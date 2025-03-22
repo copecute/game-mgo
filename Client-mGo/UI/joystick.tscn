@@ -39,6 +39,7 @@ offset_right = 75.0
 offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(75, 75)
 theme_override_styles/panel = SubResource("StyleBoxFlat_base")
 
 [node name="Thumb" type="Panel" parent="Base"]
@@ -54,4 +55,5 @@ offset_right = 30.0
 offset_bottom = 30.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(30, 30)
 theme_override_styles/panel = SubResource("StyleBoxFlat_thumb")

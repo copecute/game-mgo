@@ -7,6 +7,7 @@ extends Control
 @onready var btn_back = $CenterContainer/VBoxContainer/ButtonsContainer/btnBack
 @onready var connection_status = $CenterContainer/VBoxContainer/FormContainer/ConnectionStatus
 @onready var register_dialog = $RegisterDialog
+@onready var server_option = $CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton
 
 var is_registering = false
 
@@ -24,6 +25,9 @@ func _ready():
 	
 	# Ẩn dialog đăng ký
 	register_dialog.hide()
+	
+	# Điền danh sách server vào option button
+	_populate_server_list()
 
 func _on_connection_status_changed(status, message):
 	if is_registering:
@@ -93,8 +97,6 @@ func _on_server_message_received(message):
 				is_registering = false
 				btn_register.disabled = false
 				btn_back.disabled = false
-				await get_tree().create_timer(1.0).timeout
-				get_tree().change_scene_to_file("res://Login/Login.tscn")
 			"register_failed":
 				status_label.text = data["data"]
 				status_label.modulate = Color(1, 0, 0)  # Màu đỏ
@@ -104,6 +106,10 @@ func _on_server_message_received(message):
 				btn_back.disabled = false
 
 func _on_btn_back_pressed():
+	# Ngắt kết nối WebSocket khi quay lại
+	if Network.is_connected:
+		Network.websocket.close()
+	
 	get_tree().change_scene_to_file("res://Login/Login.tscn")
 
 func _on_cancel_button_pressed():
@@ -115,3 +121,17 @@ func _on_cancel_button_pressed():
 	is_registering = false
 	btn_register.disabled = false
 	btn_back.disabled = false
+
+func _populate_server_list():
+	server_option.clear()
+	
+	for server in Network.servers_list:
+		server_option.add_item(server.name, server.id)
+	
+	# Chọn server đầu tiên
+	if server_option.item_count > 0:
+		server_option.select(0)
+
+func _on_server_option_button_item_selected(index):
+	var server_id = server_option.get_item_id(index)
+	Network.select_server(server_id)
