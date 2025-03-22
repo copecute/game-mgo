@@ -39,6 +39,13 @@ func _ready():
 
 func _on_joystick_moved(vector):
 	joystick_direction = vector
+	
+	# cập nhật hướng flip dựa trên joystick
+	if vector.x > 0.1:
+		anim.flip_h = false
+	elif vector.x < -0.1:
+		anim.flip_h = true
+		
 	# nếu joystick đang được sử dụng, hủy di chuyển theo click chuột
 	if vector != Vector2.ZERO:
 		moving_to_target = false
@@ -67,6 +74,11 @@ func _process(delta):
 	# ưu tiên điều khiển bằng joystick
 	if joystick_direction != Vector2.ZERO:
 		direction = joystick_direction
+		# cập nhật flip ở đây để đảm bảo cả khi đang giữ joystick
+		if direction.x > 0.1:
+			anim.flip_h = false
+		elif direction.x < -0.1:
+			anim.flip_h = true
 	else:
 		# Điều khiển bằng phím
 		if Input.is_action_pressed("ui_right"):
