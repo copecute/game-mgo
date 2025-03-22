@@ -15,6 +15,7 @@ var username = ""
 var last_position = Vector2.ZERO
 var last_sent_position = Vector2.ZERO
 const POSITION_UPDATE_THRESHOLD = 5.0
+var joystick_direction = Vector2.ZERO
 
 func _ready():
 	if username.is_empty():
@@ -29,6 +30,18 @@ func _ready():
 	camera.limit_top = 0
 	camera.limit_right = MAP_WIDTH
 	camera.limit_bottom = MAP_HEIGHT
+	
+	# kết nối với joystick nếu là người chơi hiện tại
+	if username == Network.current_username:
+		var joystick = get_node_or_null("/root/Map/UI/Joystick")
+		if joystick:
+			joystick.joystick_moved.connect(_on_joystick_moved)
+
+func _on_joystick_moved(vector):
+	joystick_direction = vector
+	# nếu joystick đang được sử dụng, hủy di chuyển theo click chuột
+	if vector != Vector2.ZERO:
+		moving_to_target = false
 
 func _unhandled_input(event):
 	# Chỉ xử lý input cho nhân vật của mình
@@ -36,6 +49,11 @@ func _unhandled_input(event):
 		return
 		
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# kiểm tra xem click có phải trên joystick không
+		var joystick = get_node_or_null("/root/Map/UI/Joystick")
+		if joystick and joystick._is_point_inside_area(event.position):
+			return
+			
 		target_position = get_global_mouse_position()
 		moving_to_target = true
 
@@ -46,33 +64,37 @@ func _process(delta):
 		
 	var direction = Vector2.ZERO
 
-	# Điều khiển bằng phím
-	if Input.is_action_pressed("ui_right"):
-		direction.x += 1
-		anim.flip_h = false
-		moving_to_target = false
-	if Input.is_action_pressed("ui_left"):
-		direction.x -= 1
-		anim.flip_h = true
-		moving_to_target = false
-	if Input.is_action_pressed("ui_down"):
-		direction.y += 1
-		moving_to_target = false
-	if Input.is_action_pressed("ui_up"):
-		direction.y -= 1
-		moving_to_target = false
-
-	# Nếu không bấm phím, di chuyển tới vị trí click chuột
-	if moving_to_target:
-		direction = (target_position - global_position).normalized()
-		
-		if global_position.distance_to(target_position) < 5:
+	# ưu tiên điều khiển bằng joystick
+	if joystick_direction != Vector2.ZERO:
+		direction = joystick_direction
+	else:
+		# Điều khiển bằng phím
+		if Input.is_action_pressed("ui_right"):
+			direction.x += 1
+			anim.flip_h = false
+			moving_to_target = false
+		if Input.is_action_pressed("ui_left"):
+			direction.x -= 1
+			anim.flip_h = true
+			moving_to_target = false
+		if Input.is_action_pressed("ui_down"):
+			direction.y += 1
+			moving_to_target = false
+		if Input.is_action_pressed("ui_up"):
+			direction.y -= 1
 			moving_to_target = false
 
-		if direction.x > 0:
-			anim.flip_h = false
-		elif direction.x < 0:
-			anim.flip_h = true
+		# Nếu không bấm phím, di chuyển tới vị trí click chuột
+		if moving_to_target:
+			direction = (target_position - global_position).normalized()
+			
+			if global_position.distance_to(target_position) < 5:
+				moving_to_target = false
+
+			if direction.x > 0:
+				anim.flip_h = false
+			elif direction.x < 0:
+				anim.flip_h = true
 
 	velocity = direction * speed if direction != Vector2.ZERO else Vector2.ZERO
 	move_and_slide()

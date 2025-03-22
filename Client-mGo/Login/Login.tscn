@@ -59,6 +59,22 @@ text = "Mật khẩu"
 layout_mode = 2
 secret = true
 
+[node name="ServerContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+layout_mode = 2
+text = "Chọn máy chủ"
+
+[node name="ServerOptionButton" type="OptionButton" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+layout_mode = 2
+
+[node name="ConnectionStatus" type="Label" parent="CenterContainer/VBoxContainer/FormContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
@@ -79,4 +95,34 @@ layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
 
+[node name="LoginDialog" type="Popup" parent="."]
+title = "Đăng nhập"
+size = Vector2i(300, 150)
+visible = true
+unresizable = false
+borderless = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LoginDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="StatusLabel" type="Label" parent="LoginDialog/VBoxContainer"]
+layout_mode = 2
+text = "Đang kết nối đến máy chủ..."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CancelButton" type="Button" parent="LoginDialog/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Hủy"
+
+[connection signal="item_selected" from="CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton" to="." method="_on_server_option_button_item_selected"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/btnLogin" to="." method="_on_LoginButton_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/btnRegister" to="." method="_on_btn_register_pressed"]
+[connection signal="pressed" from="LoginDialog/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
