@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://xxxx"]
+[gd_scene load_steps=3 format=3 uid="uid://xxxx"]
 
-[ext_resource type="Script" path="res://UI/game_menu.gd" id="1_xxxx"]
+[ext_resource type="Script" uid="uid://dcemlq6wxeiwm" path="res://UI/game_menu.gd" id="1_xxxx"]
+[ext_resource type="Texture2D" uid="uid://dd2oe0hjiygef" path="res://icon.png" id="2_svf8u"]
 
 [node name="GameMenu" type="Control"]
 layout_mode = 3
@@ -13,12 +14,23 @@ script = ExtResource("1_xxxx")
 
 [node name="MenuButton" type="Button" parent="."]
 layout_mode = 1
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 50.0
-offset_bottom = 50.0
-text = "≡"
+offset_left = 1043.0
+offset_top = 14.0
+offset_right = 1130.0
+offset_bottom = 90.0
 theme_override_font_sizes/font_size = 24
+icon = ExtResource("2_svf8u")
+icon_alignment = 1
+expand_icon = true
+
+[node name="btnChat" type="Button" parent="."]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+offset_left = 920.0
+offset_top = 15.0
+offset_right = 1020.0
+offset_bottom = 91.0
+text = "Chat"
 
 [node name="MenuBar" type="ScrollContainer" parent="."]
 layout_mode = 1
@@ -26,7 +38,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -60.0
+offset_top = -108.0
 grow_horizontal = 2
 grow_vertical = 0
 horizontal_scroll_mode = 2
@@ -35,8 +47,8 @@ vertical_scroll_mode = 0
 [node name="HBoxContainer" type="HBoxContainer" parent="MenuBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
 theme_override_constants/separation = 10
+alignment = 1
 
 [node name="ChatButton" type="Button" parent="MenuBar/HBoxContainer"]
 custom_minimum_size = Vector2(100, 40)
@@ -49,5 +61,7 @@ layout_mode = 2
 text = "Đăng xuất"
 
 [connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
+[connection signal="pressed" from="btnChat" to="." method="_on_chat_button_pressed"]
+[connection signal="pressed" from="btnChat" to="." method="_on_btn_chat_pressed"]
 [connection signal="pressed" from="MenuBar/HBoxContainer/ChatButton" to="." method="_on_chat_button_pressed"]
-[connection signal="pressed" from="MenuBar/HBoxContainer/LogoutButton" to="." method="_on_logout_button_pressed"] 
+[connection signal="pressed" from="MenuBar/HBoxContainer/LogoutButton" to="." method="_on_logout_button_pressed"]

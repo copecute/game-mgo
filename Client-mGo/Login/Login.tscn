@@ -97,7 +97,7 @@ autowrap_mode = 2
 
 [node name="LoginDialog" type="Popup" parent="."]
 title = "Đăng nhập"
-size = Vector2i(300, 150)
+size = Vector2i(300, 169)
 visible = true
 unresizable = false
 borderless = false

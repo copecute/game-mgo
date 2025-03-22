@@ -123,7 +123,7 @@ func _on_server_message_received(message):
 				print("Login success, setting username: ", username_input.text)
 				Network.current_username = username_input.text
 				login_dialog.hide()
-				get_tree().change_scene_to_file("res://Map/Map.tscn")
+				get_tree().change_scene_to_file("res://Map/map_selection.tscn")
 			"login_failed":
 				status_label.text = data["data"]
 				status_label.modulate = Color(1, 0, 0)  # Màu đỏ

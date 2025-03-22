@@ -1,16 +1,15 @@
 [gd_scene load_steps=6 format=3 uid="uid://ej1b768b4lll"]
 
+[ext_resource type="Script" uid="uid://42bmj2vcwo4t" path="res://Map/Map.gd" id="1_map_script"]
 [ext_resource type="PackedScene" uid="uid://fw3tpwo12pjk" path="res://Map/Player/player_manager.tscn" id="1_qtvud"]
 [ext_resource type="PackedScene" uid="uid://xxxx" path="res://UI/game_menu.tscn" id="2_menu"]
-[ext_resource type="PackedScene" uid="uid://do10j77vv2jff" path="res://Map/TileMap/map_1.tscn" id="2_qtvud"]
 [ext_resource type="PackedScene" uid="uid://yyyy" path="res://UI/chat_dialog.tscn" id="3_chat"]
 [ext_resource type="PackedScene" uid="uid://ch8jvmbafnkyk" path="res://UI/joystick.tscn" id="4_joystick"]
 
 [node name="Map" type="Node2D"]
+script = ExtResource("1_map_script")
 
 [node name="PlayerManager" parent="." instance=ExtResource("1_qtvud")]
-
-[node name="Map1" parent="." instance=ExtResource("2_qtvud")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 

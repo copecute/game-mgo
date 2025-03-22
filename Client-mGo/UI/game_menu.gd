@@ -27,3 +27,6 @@ func _on_logout_button_pressed():
 	emit_signal("logout_pressed")
 	Network.websocket.close()
 	get_tree().change_scene_to_file("res://Login/Login.tscn") 
+
+func _on_btn_chat_pressed() -> void:
+		emit_signal("chat_pressed")

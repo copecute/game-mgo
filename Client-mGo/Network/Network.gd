@@ -9,6 +9,7 @@ var selected_server_id := 0  # server được chọn
 var is_connecting := false  # Thêm biến để theo dõi trạng thái đang kết nối
 var ping_timer := 0.0  # Thêm biến để theo dõi thời gian ping
 var ping_interval := 30.0  # Ping mỗi 30 giây để giữ kết nối
+var selected_map_path := ""  # Thêm biến để lưu map đã chọn
 
 signal server_message_received(message)
 signal servers_loaded(servers)
