@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://ej1b768b4lll"]
+[gd_scene load_steps=9 format=3 uid="uid://ej1b768b4lll"]
 
 [ext_resource type="Script" uid="uid://42bmj2vcwo4t" path="res://Map/Map.gd" id="1_map_script"]
 [ext_resource type="PackedScene" uid="uid://fw3tpwo12pjk" path="res://Map/Player/player_manager.tscn" id="1_qtvud"]
@@ -13,6 +13,7 @@
 script = ExtResource("1_map_script")
 
 [node name="PlayerManager" parent="." instance=ExtResource("1_qtvud")]
+position = Vector2(10, 7)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -23,7 +24,6 @@ script = ExtResource("1_map_script")
 [node name="InstanceDialog" parent="UI" instance=ExtResource("5_instance")]
 
 [node name="InstanceDisplay" parent="UI" instance=ExtResource("6_display")]
-layout_mode = 0
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 160.0
@@ -33,5 +33,5 @@ offset_bottom = 50.0
 
 [node name="TransitionEffect" parent="UI" instance=ExtResource("7_transition")]
 
-[connection signal="chat_pressed" from="UI/GameMenu" to="." method="_on_chat_pressed"]
 [connection signal="change_instance_pressed" from="UI/GameMenu" to="." method="_on_change_instance_pressed"]
+[connection signal="chat_pressed" from="UI/GameMenu" to="." method="_on_chat_pressed"]

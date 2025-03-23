@@ -15,8 +15,8 @@ func _ready():
 	$UI/TransitionEffect.transition_halfway.connect(_on_transition_halfway)
 	$UI/TransitionEffect.transition_finished.connect(_on_transition_finished)
 	
-	# Phát hiệu ứng chuyển cảnh khi vào map sau một frame
-	call_deferred("_play_initial_transition")
+	# Debug message
+	print("Map: Preparing to load map")
 	
 	# Load map đã chọn
 	load_selected_map()
@@ -26,8 +26,14 @@ func _ready():
 	$UI/GameMenu.logout_pressed.connect(_on_logout_pressed)
 	$UI/GameMenu.change_instance_pressed.connect(_on_change_instance_pressed)
 	
+	# Phát hiệu ứng chuyển cảnh khi vào map sau một frame
+	call_deferred("_play_initial_transition")
+	
 	# Thông báo cho server về map đã chọn
-	send_map_selection()
+	call_deferred("send_map_selection")
+	
+	# Yêu cầu danh sách người chơi sau khi gửi thông tin map
+	call_deferred("request_players_after_delay")
 
 func _play_initial_transition():
 	# Phát hiệu ứng chuyển cảnh khi vào map
@@ -81,35 +87,44 @@ func _on_change_instance_pressed():
 
 func _on_server_message_received(message):
 	var data = JSON.parse_string(message)
-	if data and data.has("type"):
-		match data["type"]:
-			"map_selected":
-				# Xác nhận map đã được chọn
-				print("map đã được chọn: ", data["data"])
-				# Không cần làm gì thêm vì player_manager sẽ xử lý các người chơi
-			"current_instance":
-				# Thông tin về khu hiện tại
-				var instance_id = int(data["data"])
-				print("Đang ở khu: ", instance_id)
-			"player_list":
-				# Xử lý danh sách người chơi
-				pass
-			"player_move":
-				# Xử lý di chuyển người chơi
-				pass
-			"ping":
-				# Nhận ping từ server, trả lại pong
-				var pong_data = {
-					"type": "pong",
-					"data": "keepalive"
-				}
-				Network.send_message(pong_data)
-			"pong":
-				# Nhận pong từ server, không cần làm gì
-				pass
-			_:
-				# Xử lý các loại tin nhắn khác
-				pass 
+	if not data:
+		return
+		
+	match data["type"]:
+		"map_selected":
+			# Đã chọn map thành công, tiến hành tải map
+			load_map(Network.selected_map_path)
+			
+		"instance_changed":
+			# Đã chuyển khu thành công
+			print("Đã chuyển đến khu: " + data["data"])
+			
+			# Cập nhật UI hiển thị khu hiện tại 
+			if $UI/InstanceDisplay:
+				$UI/InstanceDisplay.current_instance_id = int(data["data"])
+				$UI/InstanceDisplay.update_display()
+
+func load_map(map_path):
+	# Nếu đang có map, xóa map hiện tại
+	if current_map:
+		current_map.queue_free()
+		current_map = null
+	
+	# Tải map mới
+	var map_scene = load(map_path)
+	if map_scene:
+		current_map = map_scene.instantiate()
+		add_child(current_map)
+		move_child(current_map, 0)  # Đặt map ở dưới cùng (z-index)
+		
+		# Đảm bảo map đã được thêm vào scene tree trước khi yêu cầu danh sách người chơi
+		await get_tree().process_frame
+		
+		# Yêu cầu danh sách người chơi từ server
+		player_manager.request_players_list()
+		
+	else:
+		print("Không thể tải map: " + map_path)
 
 # Hàm xử lý tín hiệu show_instance_dialog
 func _on_show_instance_dialog(map_id):
@@ -132,5 +147,16 @@ func _on_transition_halfway():
 
 func _on_transition_finished():
 	# Được gọi khi hiệu ứng chuyển cảnh kết thúc
-	# Có thể thực hiện các tác vụ sau khi tải xong ở đây
-	pass 
+	# Hiện tại là yêu cầu danh sách người chơi lần nữa để đảm bảo có đầy đủ
+	if player_manager:
+		player_manager.request_players_list()
+
+func request_players_after_delay():
+	# Đợi một chút để đảm bảo server đã xử lý map selection
+	await get_tree().create_timer(0.5).timeout
+	
+	# Yêu cầu danh sách người chơi
+	if player_manager:
+		print("Map: Requesting player list after delay")
+		player_manager.request_players_list()
+	

@@ -37,6 +37,9 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
                 case "get_instances":
                     handleGetInstances(ctx.channel(), message.getData());
                     break;
+                case "get_players":
+                    handleGetPlayers(ctx.channel());
+                    break;
                 case "ping":
                     handlePing(ctx.channel());
                     break;
@@ -73,21 +76,34 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
     
     private void handleSelectMap(Channel channel, String mapId) {
         if (username == null) {
-            // Chưa đăng nhập, không thể chọn map
+            System.out.println("Lỗi: Username null khi chọn map");
             return;
         }
+        
+        System.out.println("Người chơi " + username + " chọn map " + mapId);
         
         // Tìm khu có chỗ trống
         String mapInstanceKey = gameWorld.findAvailableInstance(mapId);
         String oldMapInstanceKey = currentMapInstance;
         currentMapInstance = mapInstanceKey;
         
+        System.out.println("Di chuyển người chơi " + username + " từ " + 
+            (oldMapInstanceKey != null ? oldMapInstanceKey : "null") + " đến " + currentMapInstance);
+        
         // Di chuyển người chơi đến khu mới
         gameWorld.movePlayerToMapInstance(username, oldMapInstanceKey, currentMapInstance, channel);
         
-        // Gửi xác nhận đã chọn map
+        // In ra số người chơi trong khu mới
+        System.out.println("Số người chơi trong khu " + currentMapInstance + ": " + 
+            gameWorld.getInstancePlayerCount(currentMapInstance));
+        
+        // Thông báo cho người chơi đã chọn map thành công
         channel.writeAndFlush(new TextWebSocketFrame(
-            new Message("map_selected", mapId).toJson()));
+            new Message("map_selected", mapId).toJson()
+        ));
+        
+        // Gửi danh sách người chơi
+        sendPlayersInMapToPlayer(channel);
     }
     
     private void handleChangeInstance(Channel channel, String data) {
@@ -221,5 +237,68 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
         cause.printStackTrace();
         handleLogout();
         ctx.close();
+    }
+
+    private void handleGetPlayers(Channel channel) {
+        if (username == null || currentMapInstance == null) {
+            // Chưa đăng nhập hoặc chưa vào map
+            channel.writeAndFlush(new TextWebSocketFrame(
+                new Message("error", "Chưa đăng nhập hoặc chưa vào map").toJson()
+            ));
+            return;
+        }
+        
+        System.out.println("Nhận yêu cầu danh sách người chơi từ: " + username);
+        
+        // Lấy danh sách người chơi trong khu hiện tại
+        StringBuilder playersData = new StringBuilder();
+        for (Player player : gameWorld.getPlayersInMap(currentMapInstance)) {
+            // Bỏ qua người chơi hiện tại trong danh sách
+            if (player.getUsername().equals(username)) continue;
+            
+            if (playersData.length() > 0) {
+                playersData.append(";");
+            }
+            playersData.append(player.getUsername())
+                     .append(",")
+                     .append(player.getX())
+                     .append(",")
+                     .append(player.getY());
+        }
+        
+        System.out.println("Gửi danh sách người chơi đến " + username + ": " + playersData.toString());
+        
+        // Gửi danh sách người chơi về client
+        channel.writeAndFlush(new TextWebSocketFrame(
+            new Message("players_list", playersData.toString()).toJson()
+        ));
+    }
+
+    // Thêm phương thức này để gửi danh sách người chơi
+    private void sendPlayersInMapToPlayer(Channel channel) {
+        if (currentMapInstance == null) return;
+        
+        // Tạo danh sách người chơi và vị trí
+        StringBuilder playersData = new StringBuilder();
+        for (Player player : gameWorld.getPlayersInMap(currentMapInstance)) {
+            // Bỏ qua người chơi hiện tại
+            if (player.getUsername().equals(username)) continue;
+            
+            if (playersData.length() > 0) {
+                playersData.append(";");
+            }
+            playersData.append(player.getUsername())
+                     .append(",")
+                     .append(player.getX())
+                     .append(",")
+                     .append(player.getY());
+        }
+        
+        // Gửi danh sách người chơi
+        if (playersData.length() > 0) {
+            channel.writeAndFlush(new TextWebSocketFrame(
+                new Message("players_list", playersData.toString()).toJson()
+            ));
+        }
     }
 }

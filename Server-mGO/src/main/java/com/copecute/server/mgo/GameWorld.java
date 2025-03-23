@@ -62,7 +62,7 @@ public class GameWorld {
     public void addPlayer(String mapInstanceKey, String username, Channel channel) {
         ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers == null) {
-            // Nếu map không tồn tại, tạo mới
+            // Tạo instance mới nếu cần
             String[] parts = parseMapInstanceKey(mapInstanceKey);
             if (parts.length == 2) {
                 String mapId = parts[0];
@@ -74,10 +74,17 @@ public class GameWorld {
         
         if (mapPlayers != null) {
             Player player = new Player(username, channel);
+            
+            // Đặt vị trí mặc định
+            player.setPosition(500, 300);
+            
             mapPlayers.put(username, player);
             
+            // Thông báo thông tin người chơi mới kèm vị trí
+            String playerData = username + "," + player.getX() + "," + player.getY();
+            
             // Thông báo cho tất cả người chơi trong map về người chơi mới
-            broadcastToMap(mapInstanceKey, new Message("player_joined", username));
+            broadcastToMap(mapInstanceKey, new Message("player_joined", playerData));
             
             // Gửi thông tin về khu hiện tại cho người chơi
             String[] parts = parseMapInstanceKey(mapInstanceKey);
@@ -88,16 +95,19 @@ public class GameWorld {
                 ));
             }
             
-            // Gửi thông tin về tất cả người chơi trong map cho người chơi mới
+            // Gửi danh sách người chơi hiện có trong map cho người chơi mới
             sendAllPlayersInMapTo(mapInstanceKey, channel);
+            
+            System.out.println("Đã thêm người chơi " + username + " vào khu " + mapInstanceKey);
         }
     }
     
     // Tìm khu có chỗ trống cho map
     public String findAvailableInstance(String mapId) {
-        // Tìm khu có ít người chơi nhất
+        // Tìm khu có ít người chơi nhất nhưng có ít nhất 1 người
         int minPlayers = Integer.MAX_VALUE;
         int selectedInstance = 1;
+        int emptyInstance = -1;
         
         for (int i = 1; i <= MAX_INSTANCES_PER_MAP; i++) {
             String mapInstanceKey = getMapInstanceKey(mapId, i);
@@ -105,38 +115,65 @@ public class GameWorld {
             
             if (mapPlayers != null) {
                 int playerCount = mapPlayers.size();
+                
+                // Nếu tìm thấy khu trống, ghi nhớ lại
+                if (playerCount == 0) {
+                    if (emptyInstance == -1) emptyInstance = i;
+                    continue; // Ưu tiên khu có người chơi
+                }
+                
                 if (playerCount < minPlayers) {
                     minPlayers = playerCount;
                     selectedInstance = i;
-                    
-                    // Nếu tìm thấy khu trống, dùng luôn
-                    if (playerCount == 0) {
-                        break;
-                    }
                 }
             } else {
-                // Nếu khu chưa được tạo, tạo mới và dùng luôn
-                createInstance(mapId, i);
-                selectedInstance = i;
-                break;
+                // Nếu khu chưa được tạo, ghi nhớ
+                if (emptyInstance == -1) {
+                    createInstance(mapId, i);
+                    emptyInstance = i;
+                }
             }
         }
         
+        // Ưu tiên khu có người chơi, chỉ dùng khu trống nếu không có ai trong tất cả các khu
+        if (minPlayers == Integer.MAX_VALUE && emptyInstance != -1) {
+            selectedInstance = emptyInstance;
+        }
+        
+        System.out.println("Chọn khu " + selectedInstance + " cho map " + mapId + " với " + minPlayers + " người chơi");
         return getMapInstanceKey(mapId, selectedInstance);
     }
     
     // Di chuyển người chơi từ map cũ sang map mới
     public void movePlayerToMapInstance(String username, String oldMapInstanceKey, String newMapInstanceKey, Channel channel) {
-        // Xóa người chơi khỏi map cũ
+        // Xóa khỏi khu cũ nếu có
         if (oldMapInstanceKey != null) {
             removePlayer(oldMapInstanceKey, username);
-        } else {
-            // Nếu không có map cũ, xóa khỏi tất cả map
-            removePlayerFromAllMaps(username);
         }
         
-        // Thêm người chơi vào map mới
-        addPlayer(newMapInstanceKey, username, channel);
+        // Thêm vào khu mới
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(newMapInstanceKey);
+        if (mapPlayers != null) {
+            Player player = new Player(username, channel);
+            
+            // Thiết lập vị trí mặc định nếu cần
+            player.setPosition(500, 300);
+            
+            mapPlayers.put(username, player);
+            
+            // Thông báo cho tất cả người chơi trong khu về người chơi mới
+            String playerData = username + "," + player.getX() + "," + player.getY();
+            broadcastToMap(newMapInstanceKey, new Message("player_joined", playerData), username);
+            
+            // Thông báo khu hiện tại cho người chơi
+            String[] parts = parseMapInstanceKey(newMapInstanceKey);
+            if (parts.length == 2) {
+                int instanceId = Integer.parseInt(parts[1]);
+                channel.writeAndFlush(new TextWebSocketFrame(
+                    new Message("instance_changed", String.valueOf(instanceId)).toJson()
+                ));
+            }
+        }
     }
     
     // Xóa người chơi khỏi map

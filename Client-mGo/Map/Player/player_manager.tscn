@@ -1,12 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://fw3tpwo12pjk"]
 
-[ext_resource type="Script" uid="uid://cvqb48co7al1y" path="res://Map/player_manager.gd" id="1_fsy5q"]
+[ext_resource type="Script" uid="uid://co27a5ant7hh0" path="res://Map/player_manager.gd" id="1_fsy5q"]
 
 [node name="PlayerManager" type="Node2D"]
-
-[node name="PlayerManager" type="Node2D" parent="."]
 z_index = 1
-position = Vector2(291.966, 196.343)
 script = ExtResource("1_fsy5q")
 
 [node name="Ground" type="TileMapLayer" parent="."]
