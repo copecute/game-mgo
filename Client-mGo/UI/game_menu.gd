@@ -3,6 +3,7 @@ extends Control
 signal chat_pressed
 signal logout_pressed
 signal change_instance_pressed
+signal select_map_pressed
 
 @onready var chat_dialog = $"../ChatDialog"  # Tham chiếu đến chat dialog
 
@@ -50,3 +51,8 @@ func _on_change_instance_button_pressed():
 		Network.instance_dialog.show_for_map(Network.selected_map_path)
 	else:
 		print("Instance dialog không được tìm thấy")
+
+func _on_select_map_button_pressed():
+	# chỉ phát signal, không thay đổi scene trực tiếp
+	emit_signal("select_map_pressed")
+	$MenuBar.hide()

@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://dxnqvgbfpwlkr"]
+[gd_scene load_steps=2 format=3 uid="uid://clkkfwbsuqhjc"]
 
-[ext_resource type="Script" uid="uid://bbvcwfg17a2ec" path="res://UI/transition_effect.gd" id="1_trans"]
+[ext_resource type="Script" uid="uid://dol3u3b7670ee" path="res://UI/chonmap_effect.gd" id="1_unyna"]
 
 [node name="TransitionEffect" type="Control"]
 process_mode = 3
@@ -11,7 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("1_trans")
+script = ExtResource("1_unyna")
 
 [node name="TopRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -33,6 +33,7 @@ grow_vertical = 0
 color = Color(0, 0, 0, 1)
 
 [node name="Label" type="Label" parent="."]
+visible = false
 modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 8

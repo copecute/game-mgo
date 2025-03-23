@@ -1,7 +1,6 @@
 extends Control
 
 signal transition_halfway
-signal transition_finished
 
 var is_transitioning = false  # Biến để theo dõi trạng thái
 var screen_size = Vector2.ZERO
@@ -9,6 +8,7 @@ var animation_progress = 0.0  # Tiến trình animation (0.0 - 1.0)
 var animation_duration = 2.0  # Thời gian animation (giây)
 var current_time = 0.0  # Thời gian hiện tại của animation
 var halfway_emitted = false  # Đã phát tín hiệu halfway chưa
+var target_scene = ""  # Đường dẫn đến scene sẽ chuyển tới
 
 func _ready():
 	# Lấy kích thước màn hình
@@ -19,9 +19,6 @@ func _ready():
 	$Label.text = "Đang tải map..."
 	$Label.modulate.a = 1.0
 	show()
-	
-	# Kết nối với Network để nhận thông tin chuyển khu
-	Network.server_message_received.connect(_on_server_message_received)
 	
 	# Kết nối với tín hiệu thay đổi kích thước màn hình
 	get_tree().root.size_changed.connect(_on_screen_resized)
@@ -49,8 +46,12 @@ func _process(delta):
 		# Kết thúc animation
 		if animation_progress >= 1.0:
 			is_transitioning = false
-			emit_signal("transition_finished")
-			hide() # Ẩn hiệu ứng sau khi hoàn tất
+			hide()  # Ẩn hiệu ứng sau khi hoàn tất
+			
+			# Chuyển scene nếu có chỉ định
+			if not target_scene.is_empty():
+				get_tree().change_scene_to_file(target_scene)
+				target_scene = ""
 
 func _on_screen_resized():
 	# Cập nhật kích thước màn hình
@@ -90,19 +91,10 @@ func update_door_positions(progress: float):
 	$BottomRect.position.y = lerp(center_y, screen_size.y, progress)
 	$BottomRect.size = Vector2(screen_size.x, center_y)
 
-func _on_server_message_received(message):
-	var data = JSON.parse_string(message)
-	if not data or not data.has("type"):
-		return
-		
-	match data["type"]:
-		"map_selected":
-			# map đã được chọn thành công, bắt đầu mở cửa
-			play_transition("Đang tải map...")
-			
-		"instance_changed":
-			# khu đã được chọn thành công, bắt đầu mở cửa
-			play_transition("Đang chuyển khu...")
+# hàm mới để chuyển cảnh với hiệu ứng
+func transition_to_scene(scene_path, message = "Đang chuyển map..."):
+	target_scene = scene_path
+	play_transition(message)
 
 func play_transition(message = ""):
 	# Nếu đang trong quá trình chuyển cảnh, không kích hoạt lại

@@ -46,6 +46,10 @@ text = "Chat"
 layout_mode = 2
 text = "Chuyển khu"
 
+[node name="SelectMapButton" type="Button" parent="MenuBar"]
+layout_mode = 2
+text = "Chọn map"
+
 [node name="LogoutButton" type="Button" parent="MenuBar"]
 layout_mode = 2
 text = "Đăng xuất"
@@ -53,4 +57,5 @@ text = "Đăng xuất"
 [connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
 [connection signal="pressed" from="MenuBar/ChatButton" to="." method="_on_chat_button_pressed"]
 [connection signal="pressed" from="MenuBar/ChangeInstanceButton" to="." method="_on_change_instance_button_pressed"]
+[connection signal="pressed" from="MenuBar/SelectMapButton" to="." method="_on_select_map_button_pressed"]
 [connection signal="pressed" from="MenuBar/LogoutButton" to="." method="_on_logout_button_pressed"]

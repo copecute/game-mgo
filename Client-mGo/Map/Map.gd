@@ -25,6 +25,7 @@ func _ready():
 	$UI/GameMenu.chat_pressed.connect(_on_chat_pressed)
 	$UI/GameMenu.logout_pressed.connect(_on_logout_pressed)
 	$UI/GameMenu.change_instance_pressed.connect(_on_change_instance_pressed)
+	$UI/GameMenu.select_map_pressed.connect(_on_select_map_pressed)
 	
 	# Phát hiệu ứng chuyển cảnh khi vào map sau một frame
 	call_deferred("_play_initial_transition")
@@ -84,6 +85,10 @@ func _on_change_instance_pressed():
 		print("Map path trống, sử dụng mặc định")
 		Network.selected_map_path = "res://Map/TileMap/map_1.tscn"
 	$UI/InstanceDialog.show_for_map(Network.selected_map_path)
+
+func _on_select_map_pressed():
+	# chuyển đến màn hình chọn map trực tiếp, không cần hiệu ứng
+	get_tree().change_scene_to_file("res://Map/map_selection.tscn")
 
 func _on_server_message_received(message):
 	var data = JSON.parse_string(message)

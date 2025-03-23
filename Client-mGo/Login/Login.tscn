@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ceiamqs3hpxit" path="res://Login/login.gd" id="1_q60jw"]
 [ext_resource type="Texture2D" uid="uid://qk7jkevybcb3" path="res://assets/logo.png" id="2_obmrt"]
-[ext_resource type="PackedScene" uid="uid://do10j77vv2jff" path="res://Map/TileMap/map_1.tscn" id="2_y3tpq"]
+[ext_resource type="PackedScene" uid="uid://b5y7b0oboujha" path="res://Map/TileMap/backgroundMap.tscn" id="2_y3tpq"]
 
 [node name="Login" type="Control"]
 layout_mode = 3
@@ -13,8 +13,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_q60jw")
 
-[node name="Map1" parent="." instance=ExtResource("2_y3tpq")]
-z_index = -5
+[node name="backgroundMap" parent="." instance=ExtResource("2_y3tpq")]
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -101,7 +100,7 @@ autowrap_mode = 2
 
 [node name="LoginDialog" type="Popup" parent="."]
 title = "Đăng nhập"
-size = Vector2i(300, 184)
+size = Vector2i(300, 188)
 visible = true
 unresizable = false
 borderless = false

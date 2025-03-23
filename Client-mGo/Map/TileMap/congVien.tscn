@@ -1,12 +1,12 @@
 [gd_scene load_steps=13 format=3 uid="uid://b1dxakwetaf1b"]
 
-[ext_resource type="Texture2D" uid="uid://c4l7r330ynapp" path="res://assets/tilemap/bg.png" id="1_wy3fl"]
-[ext_resource type="Texture2D" uid="uid://cs4r2lboi8mka" path="res://assets/tilemap/buico.png" id="2_j5osa"]
-[ext_resource type="Texture2D" uid="uid://m37iyoep5yrv" path="res://assets/tilemap/co.png" id="3_f4n7f"]
-[ext_resource type="Texture2D" uid="uid://ca76rhl67qp7i" path="res://assets/tilemap/cay.png" id="4_w4i8o"]
+[ext_resource type="Texture2D" uid="uid://c4l7r330ynapp" path="res://assets/tilemap/bg.png" id="1_vxsoe"]
+[ext_resource type="Texture2D" uid="uid://cs4r2lboi8mka" path="res://assets/tilemap/buico.png" id="2_lwpwk"]
+[ext_resource type="Texture2D" uid="uid://m37iyoep5yrv" path="res://assets/tilemap/co.png" id="3_xo0ee"]
+[ext_resource type="Texture2D" uid="uid://ca76rhl67qp7i" path="res://assets/tilemap/cay.png" id="4_us2xh"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_28db2"]
-texture = ExtResource("1_wy3fl")
+texture = ExtResource("1_vxsoe")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -66,7 +66,7 @@ texture = ExtResource("1_wy3fl")
 sources/2 = SubResource("TileSetAtlasSource_28db2")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3wsbc"]
-texture = ExtResource("2_j5osa")
+texture = ExtResource("2_lwpwk")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
@@ -81,7 +81,7 @@ physics_layer_0/collision_layer = 1
 sources/2 = SubResource("TileSetAtlasSource_3wsbc")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_evke6"]
-texture = ExtResource("3_f4n7f")
+texture = ExtResource("3_xo0ee")
 0:0/0 = 0
 1:0/0 = 0
 0:1/0 = 0
@@ -91,7 +91,7 @@ texture = ExtResource("3_f4n7f")
 sources/0 = SubResource("TileSetAtlasSource_evke6")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qpeij"]
-texture = ExtResource("4_w4i8o")
+texture = ExtResource("4_us2xh")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -144,3 +144,10 @@ layer_0/tile_data = PackedInt32Array(720898, 0, 0, 786434, 0, 0, 851970, 0, 0, 9
 z_index = 2
 tile_set = SubResource("TileSet_n40s2")
 format = 2
+
+[node name="Label" type="Label" parent="."]
+offset_left = 439.0
+offset_top = 160.0
+offset_right = 526.0
+offset_bottom = 183.0
+text = "Công Viên"

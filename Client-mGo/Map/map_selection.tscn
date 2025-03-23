@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://dxvmtflpwedgt"]
+[gd_scene load_steps=5 format=3 uid="uid://dxvmtflpwedgt"]
 
-[ext_resource type="Script" path="res://Map/map_selection.gd" id="1_map_sel"]
-[ext_resource type="Texture2D" uid="uid://bgyr6lu5iytda" path="res://assets/chuky-white.png" id="2_logo"]
+[ext_resource type="Script" uid="uid://b73ihfqfvft4x" path="res://Map/map_selection.gd" id="1_map_sel"]
+[ext_resource type="PackedScene" uid="uid://b5y7b0oboujha" path="res://Map/TileMap/backgroundMap.tscn" id="2_qxb4x"]
+[ext_resource type="Texture2D" uid="uid://ds400ifm8bp4d" path="res://assets/UI/map_khugiaitri.png" id="3_qxb4x"]
+[ext_resource type="PackedScene" uid="uid://clkkfwbsuqhjc" path="res://UI/chonmap_effect.tscn" id="3_ykqx8"]
 
 [node name="MapSelection" type="Control"]
 layout_mode = 3
@@ -12,64 +14,325 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_map_sel")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="backgroundMap" parent="." instance=ExtResource("2_qxb4x")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TransitionEffect" parent="UI" instance=ExtResource("3_ykqx8")]
+visible = false
+z_index = 1
+
+[node name="MapViewport" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MapButtons" type="Control" parent="UI/MapViewport"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-theme_override_constants/separation = 20
+[node name="KhuNhaO" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0651042
+anchor_top = 0.46142
+anchor_right = 0.1525
+anchor_bottom = 0.581667
+offset_right = 0.319946
+offset_bottom = 0.0799942
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
 
-[node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(200, 100)
-layout_mode = 2
-texture = ExtResource("2_logo")
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/KhuNhaO"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Khu nhà ở"
+horizontal_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="imgKhuNhaO" type="TextureRect" parent="UI/MapViewport/MapButtons/KhuNhaO"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 21.0
+offset_right = 75.0
+offset_bottom = 79.0
+texture = ExtResource("3_qxb4x")
+
+[node name="KhuSinhThai" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.630208
+anchor_top = 0.307099
+anchor_right = 0.717014
+anchor_bottom = 0.435185
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/KhuSinhThai"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Khu sinh thái"
+horizontal_alignment = 1
+
+[node name="imgKhuSinhThai" type="TextureRect" parent="UI/MapViewport/MapButtons/KhuSinhThai"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 23.0
+offset_right = 73.0
+offset_bottom = 81.0
+texture = ExtResource("3_qxb4x")
+
+[node name="KhuGiaiTri" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.292535
+anchor_top = 0.555556
+anchor_right = 0.392361
+anchor_bottom = 0.694444
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/KhuGiaiTri"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Khu giải trí"
+horizontal_alignment = 1
+
+[node name="imgKhuGiaiTri" type="TextureRect" parent="UI/MapViewport/MapButtons/KhuGiaiTri"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 24.0
+offset_right = 85.0
+offset_bottom = 82.0
+texture = ExtResource("3_qxb4x")
+
+[node name="CongVien" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0998264
+anchor_top = 0.270062
+anchor_right = 0.199653
+anchor_bottom = 0.398148
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/CongVien"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Công viên"
+horizontal_alignment = 1
+
+[node name="imgCongVien" type="TextureRect" parent="UI/MapViewport/MapButtons/CongVien"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 21.0
+offset_right = 85.0
+offset_bottom = 79.0
+texture = ExtResource("3_qxb4x")
+
+[node name="KhuThuongMai" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.661458
+anchor_top = 0.484568
+anchor_right = 0.78125
+anchor_bottom = 0.623457
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/KhuThuongMai"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Khu thương mại"
+horizontal_alignment = 1
+
+[node name="imgKhuThuongMai" type="TextureRect" parent="UI/MapViewport/MapButtons/KhuThuongMai"]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 23.0
+offset_right = 95.0
+offset_bottom = 81.0
+texture = ExtResource("3_qxb4x")
+
+[node name="NongTrai" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.440104
+anchor_top = 0.541667
+anchor_right = 0.519965
+anchor_bottom = 0.669753
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/NongTrai"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Nông trại"
+horizontal_alignment = 1
+
+[node name="imgNongTrai" type="TextureRect" parent="UI/MapViewport/MapButtons/NongTrai"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 21.0
+offset_right = 71.0
+offset_bottom = 79.0
+texture = ExtResource("3_qxb4x")
+
+[node name="KhuHangCo" type="Button" parent="UI/MapViewport/MapButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.390625
+anchor_top = 0.294753
+anchor_right = 0.490451
+anchor_bottom = 0.421296
+focus_mode = 0
+flat = true
+icon_alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UI/MapViewport/MapButtons/KhuHangCo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "Khu hàng cỏ"
+horizontal_alignment = 1
+
+[node name="imgKhuHangCo" type="TextureRect" parent="UI/MapViewport/MapButtons/KhuHangCo"]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 19.0
+offset_right = 78.0
+offset_bottom = 77.0
+texture = ExtResource("3_qxb4x")
+
+[node name="PlayerMarker" type="TextureRect" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-text = "Chọn map"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="BottomPanel" type="Panel" parent="UI"]
+self_modulate = Color(0, 0, 0, 0.5)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -60.0
+grow_horizontal = 2
+grow_vertical = 0
 
-[node name="MapContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/MapContainer"]
-layout_mode = 2
-text = "Chọn map"
-horizontal_alignment = 1
-
-[node name="MapOptionButton" type="OptionButton" parent="CenterContainer/VBoxContainer/MapContainer"]
-layout_mode = 2
-
-[node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
+[node name="ButtonsContainer" type="HBoxContainer" parent="UI/BottomPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -16.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 20
-alignment = 1
+alignment = 2
 
-[node name="PlayButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
-custom_minimum_size = Vector2(120, 40)
+[node name="PlayButton" type="Button" parent="UI/BottomPanel/ButtonsContainer"]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 16
 text = "Chơi"
 
-[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
-custom_minimum_size = Vector2(120, 40)
+[node name="BackButton" type="Button" parent="UI/BottomPanel/ButtonsContainer"]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 16
 text = "Quay lại"
 
-[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[connection signal="item_selected" from="CenterContainer/VBoxContainer/MapContainer/MapOptionButton" to="." method="_on_map_option_button_item_selected"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/BackButton" to="." method="_on_back_button_pressed"] 
+[connection signal="pressed" from="UI/MapViewport/MapButtons/KhuNhaO" to="." method="_on_khu_nha_o_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/KhuSinhThai" to="." method="_on_khu_sinh_thai_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/KhuGiaiTri" to="." method="_on_khu_giai_tri_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/CongVien" to="." method="_on_cong_vien_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/KhuThuongMai" to="." method="_on_khu_thuong_mai_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/NongTrai" to="." method="_on_nong_trai_pressed"]
+[connection signal="pressed" from="UI/MapViewport/MapButtons/KhuHangCo" to="." method="_on_khu_hang_co_pressed"]
+[connection signal="pressed" from="UI/BottomPanel/ButtonsContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="UI/BottomPanel/ButtonsContainer/BackButton" to="." method="_on_back_button_pressed"]
