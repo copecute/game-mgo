@@ -6,192 +6,220 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
 import java.util.Collection;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 // lớp quản lý tất cả người chơi trong game
 public class GameWorld {
     private static final GameWorld instance = new GameWorld();
-    // map từ tên map đến danh sách người chơi trong map đó
+    // map từ tên map và khu đến danh sách người chơi
+    // format: "mapId:instanceId" -> players
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Player>> worldPlayers = new ConcurrentHashMap<>();
+    
+    // Số lượng người chơi tối đa trong một khu
+    private static final int MAX_PLAYERS_PER_INSTANCE = 25;
+    // Số lượng khu tối đa cho mỗi map
+    private static final int MAX_INSTANCES_PER_MAP = 20;
+    
+    // Danh sách các map có sẵn
+    private final List<String> availableMaps = new ArrayList<>();
     
     private GameWorld() {
         // khởi tạo các map mặc định
-        worldPlayers.put("res://Map/TileMap/map_1.tscn", new ConcurrentHashMap<>());
-        worldPlayers.put("res://Map/TileMap/map_2.tscn", new ConcurrentHashMap<>());
+        availableMaps.add("res://Map/TileMap/map_1.tscn");
+        availableMaps.add("res://Map/TileMap/map_2.tscn");
+        
+        // khởi tạo 20 khu cho mỗi map
+        for (String mapId : availableMaps) {
+            for (int i = 1; i <= MAX_INSTANCES_PER_MAP; i++) {
+                createInstance(mapId, i);
+            }
+        }
+    }
+    
+    // Tạo một khu mới cho map
+    private void createInstance(String mapId, int instanceId) {
+        String mapInstanceKey = getMapInstanceKey(mapId, instanceId);
+        worldPlayers.put(mapInstanceKey, new ConcurrentHashMap<>());
+        System.out.println("Đã tạo khu " + instanceId + " cho map " + mapId);
+    }
+    
+    // Tạo key cho map và khu
+    private String getMapInstanceKey(String mapId, int instanceId) {
+        return mapId + ":" + instanceId;
+    }
+    
+    // Phân tách key thành mapId và instanceId
+    private String[] parseMapInstanceKey(String key) {
+        return key.split(":");
     }
     
     public static GameWorld getInstance() {
         return instance;
     }
     
-    // thêm người chơi mới mà không broadcast ngay
-    public void addPlayerSilently(String mapId, String username, Player player) {
-        // đảm bảo map tồn tại
-        worldPlayers.putIfAbsent(mapId, new ConcurrentHashMap<>());
-        worldPlayers.get(mapId).put(username, player);
+    // Thêm người chơi vào map
+    public void addPlayer(String mapInstanceKey, String username, Channel channel) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
+        if (mapPlayers == null) {
+            // Nếu map không tồn tại, tạo mới
+            String[] parts = parseMapInstanceKey(mapInstanceKey);
+            if (parts.length == 2) {
+                String mapId = parts[0];
+                int instanceId = Integer.parseInt(parts[1]);
+                createInstance(mapId, instanceId);
+                mapPlayers = worldPlayers.get(mapInstanceKey);
+            }
+        }
+        
+        if (mapPlayers != null) {
+            Player player = new Player(username, channel);
+            mapPlayers.put(username, player);
+            
+            // Thông báo cho tất cả người chơi trong map về người chơi mới
+            broadcastToMap(mapInstanceKey, new Message("player_joined", username));
+            
+            // Gửi thông tin về khu hiện tại cho người chơi
+            String[] parts = parseMapInstanceKey(mapInstanceKey);
+            if (parts.length == 2) {
+                int instanceId = Integer.parseInt(parts[1]);
+                channel.writeAndFlush(new TextWebSocketFrame(
+                    new Message("current_instance", String.valueOf(instanceId)).toJson()
+                ));
+            }
+            
+            // Gửi thông tin về tất cả người chơi trong map cho người chơi mới
+            sendAllPlayersInMapTo(mapInstanceKey, channel);
+        }
     }
     
-    // broadcast thông tin người chơi mới chỉ trong map cụ thể
-    public void broadcastNewPlayer(String mapId, String username) {
-        // thông báo cho tất cả người chơi trong map về người chơi mới
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
-        if (mapPlayers != null) {
-            Player newPlayer = mapPlayers.get(username);
-            if (newPlayer != null) {
-                String posData = username + "," + newPlayer.getX() + "," + newPlayer.getY();
-                Message joinMsg = new Message("player_joined", username);
-                Message posMsg = new Message("player_position", posData);
-                
-                // Gửi cả thông tin join và position
-                for (Player player : mapPlayers.values()) {
-                    if (!player.getUsername().equals(username)) {
-                        Channel channel = player.getChannel();
-                        channel.writeAndFlush(new TextWebSocketFrame(joinMsg.toJson()));
-                        channel.writeAndFlush(new TextWebSocketFrame(posMsg.toJson()));
+    // Tìm khu có chỗ trống cho map
+    public String findAvailableInstance(String mapId) {
+        // Tìm khu có ít người chơi nhất
+        int minPlayers = Integer.MAX_VALUE;
+        int selectedInstance = 1;
+        
+        for (int i = 1; i <= MAX_INSTANCES_PER_MAP; i++) {
+            String mapInstanceKey = getMapInstanceKey(mapId, i);
+            ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
+            
+            if (mapPlayers != null) {
+                int playerCount = mapPlayers.size();
+                if (playerCount < minPlayers) {
+                    minPlayers = playerCount;
+                    selectedInstance = i;
+                    
+                    // Nếu tìm thấy khu trống, dùng luôn
+                    if (playerCount == 0) {
+                        break;
                     }
                 }
+            } else {
+                // Nếu khu chưa được tạo, tạo mới và dùng luôn
+                createInstance(mapId, i);
+                selectedInstance = i;
+                break;
             }
         }
+        
+        return getMapInstanceKey(mapId, selectedInstance);
     }
     
-    // Thay thế phương thức addPlayer cũ
-    public void addPlayer(String mapId, String username, Channel channel) {
-        Player newPlayer = new Player(username, channel);
-        
-        // đảm bảo map tồn tại
-        worldPlayers.putIfAbsent(mapId, new ConcurrentHashMap<>());
-        
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
-        mapPlayers.put(username, newPlayer);
-        
-        // 1. Gửi thông tin tất cả người chơi hiện có trong map cho người chơi mới
-        for (Player existingPlayer : mapPlayers.values()) {
-            if (!existingPlayer.getUsername().equals(username)) {
-                String posData = existingPlayer.getUsername() + "," + 
-                               existingPlayer.getX() + "," + 
-                               existingPlayer.getY();
-                
-                // Gửi thông tin người chơi hiện có cho người mới
-                channel.writeAndFlush(new TextWebSocketFrame(
-                    new Message("player_joined", existingPlayer.getUsername()).toJson()
-                ));
-                channel.writeAndFlush(new TextWebSocketFrame(
-                    new Message("player_position", posData).toJson()
-                ));
-            }
+    // Di chuyển người chơi từ map cũ sang map mới
+    public void movePlayerToMapInstance(String username, String oldMapInstanceKey, String newMapInstanceKey, Channel channel) {
+        // Xóa người chơi khỏi map cũ
+        if (oldMapInstanceKey != null) {
+            removePlayer(oldMapInstanceKey, username);
+        } else {
+            // Nếu không có map cũ, xóa khỏi tất cả map
+            removePlayerFromAllMaps(username);
         }
         
-        // 2. Gửi thông tin người chơi mới cho tất cả người chơi khác trong map
-        String newPlayerPos = username + "," + newPlayer.getX() + "," + newPlayer.getY();
-        Message joinMsg = new Message("player_joined", username);
-        Message posMsg = new Message("player_position", newPlayerPos);
-        
-        for (Player player : mapPlayers.values()) {
-            if (!player.getUsername().equals(username)) {
-                Channel playerChannel = player.getChannel();
-                playerChannel.writeAndFlush(new TextWebSocketFrame(joinMsg.toJson()));
-                playerChannel.writeAndFlush(new TextWebSocketFrame(posMsg.toJson()));
-            }
-        }
+        // Thêm người chơi vào map mới
+        addPlayer(newMapInstanceKey, username, channel);
     }
     
-    // xóa người chơi khỏi map cụ thể
-    public void removePlayer(String mapId, String username) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    // Xóa người chơi khỏi map
+    public void removePlayer(String mapInstanceKey, String username) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers != null) {
             mapPlayers.remove(username);
             
-            // thông báo cho tất cả người chơi trong map về người chơi đã rời đi
-            broadcastMessageToMap(mapId, "player_left", username);
+            // Thông báo cho tất cả người chơi trong map về người chơi đã rời đi
+            broadcastToMap(mapInstanceKey, new Message("player_left", username));
         }
     }
     
-    // xóa người chơi khỏi tất cả map
+    // Xóa người chơi khỏi tất cả map
     public void removePlayerFromAllMaps(String username) {
         for (Map.Entry<String, ConcurrentHashMap<String, Player>> entry : worldPlayers.entrySet()) {
-            String mapId = entry.getKey();
-            ConcurrentHashMap<String, Player> players = entry.getValue();
+            String mapInstanceKey = entry.getKey();
+            ConcurrentHashMap<String, Player> mapPlayers = entry.getValue();
             
-            if (players.remove(username) != null) {
-                // thông báo cho tất cả người chơi trong map về người chơi đã rời đi
-                broadcastMessageToMap(mapId, "player_left", username);
+            if (mapPlayers.containsKey(username)) {
+                mapPlayers.remove(username);
+                
+                // Thông báo cho tất cả người chơi trong map về người chơi đã rời đi
+                broadcastToMap(mapInstanceKey, new Message("player_left", username));
             }
         }
     }
     
-    // cập nhật vị trí người chơi trong map cụ thể
-    public void updatePlayerPosition(String mapId, String username, float x, float y) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    // Cập nhật vị trí người chơi
+    public void updatePlayerPosition(String mapInstanceKey, String username, float x, float y) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers != null) {
             Player player = mapPlayers.get(username);
             if (player != null) {
                 player.setPosition(x, y);
                 
-                // thông báo cho tất cả người chơi trong map về vị trí mới
-                Message msg = new Message("player_moved", username + "," + x + "," + y);
-                broadcastToMap(mapId, msg);
+                // Thông báo cho tất cả người chơi trong map về vị trí mới
+                String posData = username + "," + x + "," + y;
+                broadcastToMap(mapInstanceKey, new Message("player_moved", posData), username);
             }
         }
     }
     
-    // gửi tin nhắn đến tất cả người chơi trong map cụ thể
-    public void broadcastToMap(String mapId, Message message) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    // Gửi tin nhắn đến tất cả người chơi trong map
+    public void broadcastToMap(String mapInstanceKey, Message message) {
+        broadcastToMap(mapInstanceKey, message, null);
+    }
+    
+    // Gửi tin nhắn đến tất cả người chơi trong map, trừ người gửi
+    public void broadcastToMap(String mapInstanceKey, Message message, String excludeUsername) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers != null) {
-            String json = message.toJson();
-            mapPlayers.values().forEach(player -> 
-                player.getChannel().writeAndFlush(new TextWebSocketFrame(json)));
-        }
-    }
-    
-    private void broadcastMessageToMap(String mapId, String type, String data) {
-        broadcastToMap(mapId, new Message(type, data));
-    }
-    
-    // kiểm tra người chơi có tồn tại trong map không
-    public boolean hasPlayerInMap(String mapId, String username) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
-        return mapPlayers != null && mapPlayers.containsKey(username);
-    }
-    
-    // kiểm tra người chơi có tồn tại trong bất kỳ map nào không
-    public boolean hasPlayerInAnyMap(String username) {
-        for (ConcurrentHashMap<String, Player> players : worldPlayers.values()) {
-            if (players.containsKey(username)) {
-                return true;
+            for (Player player : mapPlayers.values()) {
+                if (excludeUsername == null || !player.getUsername().equals(excludeUsername)) {
+                    player.getChannel().writeAndFlush(new TextWebSocketFrame(message.toJson()));
+                }
             }
         }
-        return false;
     }
     
-    // lấy map hiện tại của người chơi
-    public String getPlayerCurrentMap(String username) {
-        for (Map.Entry<String, ConcurrentHashMap<String, Player>> entry : worldPlayers.entrySet()) {
-            if (entry.getValue().containsKey(username)) {
-                return entry.getKey();
+    // Lấy danh sách các khu của map
+    public List<Integer> getMapInstances(String mapId) {
+        List<Integer> instances = new ArrayList<>();
+        
+        for (int i = 1; i <= MAX_INSTANCES_PER_MAP; i++) {
+            String mapInstanceKey = getMapInstanceKey(mapId, i);
+            if (worldPlayers.containsKey(mapInstanceKey)) {
+                instances.add(i);
             }
-        }
-        return null;
-    }
-    
-    // chuyển người chơi sang map khác
-    public void movePlayerToMap(String username, String oldMapId, String newMapId, Channel channel) {
-        // xóa khỏi map cũ
-        if (oldMapId != null) {
-            removePlayer(oldMapId, username);
         }
         
-        // thêm vào map mới
-        addPlayer(newMapId, username, channel);
+        return instances;
     }
     
-    public Set<String> getPlayerNamesInMap(String mapId) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
-        return mapPlayers != null ? mapPlayers.keySet() : Set.of();
+    // Lấy số lượng người chơi trong khu
+    public int getInstancePlayerCount(String mapInstanceKey) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
+        return mapPlayers != null ? mapPlayers.size() : 0;
     }
     
-    // thêm phương thức lấy vị trí người chơi trong map
-    public String getPlayerPosition(String mapId, String username) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    // thêm phương thức lấy vị trí người chơi trong khu
+    public String getPlayerPosition(String mapInstanceKey, String username) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers != null) {
             Player player = mapPlayers.get(username);
             if (player != null) {
@@ -201,9 +229,9 @@ public class GameWorld {
         return null;
     }
     
-    // thêm phương thức lấy tất cả người chơi và vị trí trong map
-    public void sendAllPlayersInMapTo(String mapId, Channel channel) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    // thêm phương thức lấy tất cả người chơi và vị trí trong khu
+    public void sendAllPlayersInMapTo(String mapInstanceKey, Channel channel) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         if (mapPlayers != null) {
             for (Player player : mapPlayers.values()) {
                 String posData = player.getUsername() + "," + player.getX() + "," + player.getY();
@@ -214,8 +242,38 @@ public class GameWorld {
         }
     }
     
-    public Collection<Player> getPlayersInMap(String mapId) {
-        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapId);
+    public Collection<Player> getPlayersInMap(String mapInstanceKey) {
+        ConcurrentHashMap<String, Player> mapPlayers = worldPlayers.get(mapInstanceKey);
         return mapPlayers != null ? mapPlayers.values() : Set.of();
+    }
+    
+    // Gửi thông tin về các khu của map cho người chơi
+    public void sendMapInstancesInfo(String mapId, Channel channel) {
+        StringBuilder instancesInfo = new StringBuilder();
+        
+        for (int i = 1; i <= MAX_INSTANCES_PER_MAP; i++) {
+            String mapInstanceKey = getMapInstanceKey(mapId, i);
+            int playerCount = getInstancePlayerCount(mapInstanceKey);
+            
+            // Format: instanceId,playerCount;instanceId,playerCount;...
+            if (instancesInfo.length() > 0) {
+                instancesInfo.append(";");
+            }
+            instancesInfo.append(i).append(",").append(playerCount);
+        }
+        
+        channel.writeAndFlush(new TextWebSocketFrame(
+            new Message("map_instances", instancesInfo.toString()).toJson()
+        ));
+    }
+    
+    // Kiểm tra xem người chơi có trong bất kỳ map nào không
+    public boolean hasPlayerInAnyMap(String username) {
+        for (ConcurrentHashMap<String, Player> mapPlayers : worldPlayers.values()) {
+            if (mapPlayers.containsKey(username)) {
+                return true;
+            }
+        }
+        return false;
     }
 } 

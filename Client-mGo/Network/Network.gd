@@ -11,9 +11,16 @@ var ping_timer := 0.0  # Thêm biến để theo dõi thời gian ping
 var ping_interval := 30.0  # Ping mỗi 30 giây để giữ kết nối
 var selected_map_path := ""  # Thêm biến để lưu map đã chọn
 
+# Biến toàn cục để lưu trữ tham chiếu đến các dialog
+var instance_dialog = null
+var chat_dialog = null
+var instance_display = null
+
 signal server_message_received(message)
 signal servers_loaded(servers)
 signal connection_status_changed(status, message)
+signal show_instance_dialog(map_id)
+signal show_chat_dialog
 
 func _ready():
 	# không tự động kết nối nữa, đợi người dùng chọn server

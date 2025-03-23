@@ -72,6 +72,17 @@ func _handle_message(msg: String) -> void:
 			if username in players:
 				var player = players[username]
 				player.get_node("ChatBubble").show_message(message)
+				
+		"instance_changed":
+			# Khi chuyển khu, xóa tất cả người chơi khác
+			clear_all_players()
+			
+			# Hiệu ứng chuyển cảnh sẽ được kích hoạt bởi transition_effect.gd
+			# khi nhận được thông báo "instance_changed"
+			
+			# Tạo lại player cho người chơi hiện tại
+			if Network.current_username not in players:
+				spawn_player(Network.current_username)
 
 func _on_server_message_received(message: String) -> void:
 	print("PlayerManager received message: ", message)

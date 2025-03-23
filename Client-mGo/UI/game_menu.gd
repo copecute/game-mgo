@@ -2,6 +2,7 @@ extends Control
 
 signal chat_pressed
 signal logout_pressed
+signal change_instance_pressed
 
 @onready var chat_dialog = $"../ChatDialog"  # Tham chiếu đến chat dialog
 
@@ -22,6 +23,11 @@ func _on_menu_button_pressed():
 func _on_chat_button_pressed():
 	emit_signal("chat_pressed")
 	$MenuBar.hide()
+	
+	if Network.chat_dialog:
+		Network.chat_dialog.show()
+	else:
+		print("Chat dialog không được tìm thấy")
 
 func _on_logout_button_pressed():
 	emit_signal("logout_pressed")
@@ -34,4 +40,13 @@ func _on_logout_button_pressed():
 		Network.websocket.close()
 
 func _on_btn_chat_pressed() -> void:
-		emit_signal("chat_pressed")
+	emit_signal("chat_pressed")
+
+func _on_change_instance_button_pressed():
+	emit_signal("change_instance_pressed")
+	$MenuBar.hide()
+	
+	if Network.instance_dialog:
+		Network.instance_dialog.show_for_map(Network.selected_map_path)
+	else:
+		print("Instance dialog không được tìm thấy")
