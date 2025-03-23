@@ -17,9 +17,10 @@ position = Vector2(10, 7)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
-[node name="GameMenu" parent="UI" instance=ExtResource("2_menu")]
-
 [node name="ChatDialog" parent="UI" instance=ExtResource("3_chat")]
+visible = true
+
+[node name="GameMenu" parent="UI" instance=ExtResource("2_menu")]
 
 [node name="InstanceDialog" parent="UI" instance=ExtResource("5_instance")]
 
@@ -32,6 +33,7 @@ offset_bottom = 50.0
 [node name="Joystick" parent="UI" instance=ExtResource("4_joystick")]
 
 [node name="TransitionEffect" parent="UI" instance=ExtResource("7_transition")]
+visible = false
 
 [connection signal="change_instance_pressed" from="UI/GameMenu" to="." method="_on_change_instance_pressed"]
 [connection signal="chat_pressed" from="UI/GameMenu" to="." method="_on_chat_pressed"]

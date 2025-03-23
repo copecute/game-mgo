@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://yyyy"]
+[gd_scene load_steps=4 format=3 uid="uid://yyyy"]
 
-[ext_resource type="Script" path="res://Login/register.gd" id="1_reg"]
-[ext_resource type="Texture2D" uid="uid://bgyr6lu5iytda" path="res://assets/chuky-white.png" id="2_logo"]
+[ext_resource type="Script" uid="uid://pl0lvr46dyu0" path="res://Login/register.gd" id="1_reg"]
+[ext_resource type="Texture2D" uid="uid://qk7jkevybcb3" path="res://assets/logo.png" id="2_m0r1w"]
+[ext_resource type="PackedScene" uid="uid://do10j77vv2jff" path="res://Map/TileMap/map_1.tscn" id="2_ttb7q"]
 
 [node name="Register" type="Control"]
 layout_mode = 3
@@ -11,6 +12,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_reg")
+
+[node name="Map1" parent="." instance=ExtResource("2_ttb7q")]
+z_index = -5
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -28,7 +32,7 @@ theme_override_constants/separation = 20
 [node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 2
-texture = ExtResource("2_logo")
+texture = ExtResource("2_m0r1w")
 expand_mode = 1
 stretch_mode = 5
 
@@ -97,7 +101,8 @@ autowrap_mode = 2
 
 [node name="RegisterDialog" type="Popup" parent="."]
 title = "Đăng ký"
-size = Vector2i(300, 150)
+position = Vector2i(0, 36)
+size = Vector2i(300, 179)
 visible = true
 unresizable = false
 borderless = false

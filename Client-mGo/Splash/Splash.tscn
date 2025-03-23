@@ -1,31 +1,55 @@
-[gd_scene load_steps=3 format=3 uid="uid://by8bg3aoi5vly"]
+[gd_scene load_steps=4 format=3 uid="uid://by8bg3aoi5vly"]
 
-[ext_resource type="Texture2D" uid="uid://bgyr6lu5iytda" path="res://assets/chuky-white.png" id="1_0vf8b"]
 [ext_resource type="Script" uid="uid://c30jdqf1x8bpr" path="res://Splash/splash.gd" id="1_wx0j5"]
+[ext_resource type="Texture2D" uid="uid://qk7jkevybcb3" path="res://assets/logo.png" id="2_6cq46"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pb1gx"]
+bg_color = Color(0.1, 0.5, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="Splash" type="Control"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_wx0j5")
 
-[node name="Label" type="Label" parent="."]
-layout_mode = 0
-offset_left = 521.0
-offset_top = 377.0
-offset_right = 702.0
-offset_bottom = 400.0
-text = "Đang kết nối máy chủ..."
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="."]
-layout_mode = 0
-offset_left = 480.0
-offset_top = 186.0
-offset_right = 775.0
-offset_bottom = 403.0
-texture = ExtResource("1_0vf8b")
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
+texture = ExtResource("2_6cq46")
 expand_mode = 1
+stretch_mode = 5
+
+[node name="ProgressBar" type="ProgressBar" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_pb1gx")
+max_value = 1.0
+value = 0.2
+show_percentage = false
