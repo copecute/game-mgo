@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://bf814or4mvaw" path="res://UI/chat_dialog.gd" id="1_yyyy"]
 
 [node name="ChatDialog" type="Control"]
-visible = false
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -13,7 +12,7 @@ anchor_bottom = 0.5
 offset_left = -150.0
 offset_top = -50.0
 offset_right = 150.0
-offset_bottom = 50.0
+offset_bottom = 18.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yyyy")
@@ -37,6 +36,7 @@ grow_vertical = 2
 [node name="ChatInput" type="LineEdit" parent="Panel/VBoxContainer"]
 layout_mode = 2
 placeholder_text = "Nhập tin nhắn..."
+max_length = 50
 
 [node name="SendButton" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2

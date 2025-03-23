@@ -19,6 +19,8 @@ position = Vector2(10, 7)
 
 [node name="ChatDialog" parent="UI" instance=ExtResource("3_chat")]
 visible = true
+offset_top = 179.0
+offset_bottom = 246.0
 
 [node name="GameMenu" parent="UI" instance=ExtResource("2_menu")]
 
@@ -31,6 +33,9 @@ offset_right = 160.0
 offset_bottom = 50.0
 
 [node name="Joystick" parent="UI" instance=ExtResource("4_joystick")]
+offset_top = -278.0
+offset_right = 282.0
+offset_bottom = -4.0
 
 [node name="TransitionEffect" parent="UI" instance=ExtResource("7_transition")]
 visible = false

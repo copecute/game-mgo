@@ -1,13 +1,13 @@
 extends Control
 
-@onready var username_input = $CenterContainer/VBoxContainer/FormContainer/UsernameContainer/UsernameField
-@onready var password_input = $CenterContainer/VBoxContainer/FormContainer/PasswordContainer/PasswordField
-@onready var status_label = $CenterContainer/VBoxContainer/StatusLabel
-@onready var btn_register = $CenterContainer/VBoxContainer/ButtonsContainer/btnRegister
-@onready var btn_back = $CenterContainer/VBoxContainer/ButtonsContainer/btnBack
-@onready var connection_status = $CenterContainer/VBoxContainer/FormContainer/ConnectionStatus
-@onready var register_dialog = $RegisterDialog
-@onready var server_option = $CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton
+@onready var username_input = $UI/CenterContainer/VBoxContainer/FormContainer/UsernameContainer/UsernameField
+@onready var password_input = $UI/CenterContainer/VBoxContainer/FormContainer/PasswordContainer/PasswordField
+@onready var status_label = $UI/CenterContainer/VBoxContainer/StatusLabel
+@onready var btn_register = $UI/CenterContainer/VBoxContainer/ButtonsContainer/btnRegister
+@onready var btn_back = $UI/CenterContainer/VBoxContainer/ButtonsContainer/btnBack
+@onready var connection_status = $UI/CenterContainer/VBoxContainer/FormContainer/ConnectionStatus
+@onready var register_dialog = $UI/RegisterDialog
+@onready var server_option = $UI/CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton
 
 var is_registering = false
 

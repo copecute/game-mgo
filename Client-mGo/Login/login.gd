@@ -1,13 +1,13 @@
 extends Control
 
-@onready var username_input = $CenterContainer/VBoxContainer/FormContainer/UsernameContainer/UsernameField
-@onready var password_input = $CenterContainer/VBoxContainer/FormContainer/PasswordContainer/PasswordField
-@onready var status_label = $CenterContainer/VBoxContainer/StatusLabel
-@onready var btn_login = $CenterContainer/VBoxContainer/ButtonsContainer/btnLogin
-@onready var btn_register = $CenterContainer/VBoxContainer/ButtonsContainer/btnRegister
-@onready var server_option = $CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton
-@onready var connection_status = $CenterContainer/VBoxContainer/FormContainer/ConnectionStatus
-@onready var login_dialog = $LoginDialog
+@onready var username_input = $UI/CenterContainer/VBoxContainer/FormContainer/UsernameContainer/UsernameField
+@onready var password_input = $UI/CenterContainer/VBoxContainer/FormContainer/PasswordContainer/PasswordField
+@onready var status_label = $UI/CenterContainer/VBoxContainer/StatusLabel
+@onready var btn_login = $UI/CenterContainer/VBoxContainer/ButtonsContainer/btnLogin
+@onready var btn_register = $UI/CenterContainer/VBoxContainer/ButtonsContainer/btnRegister
+@onready var server_option = $UI/CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton
+@onready var connection_status = $UI/CenterContainer/VBoxContainer/FormContainer/ConnectionStatus
+@onready var login_dialog = $UI/LoginDialog
 
 var is_connecting = false
 var is_logging_in = false

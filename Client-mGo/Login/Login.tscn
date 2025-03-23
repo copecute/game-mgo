@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://823lhl0s3vkb"]
+[gd_scene load_steps=5 format=3 uid="uid://823lhl0s3vkb"]
 
 [ext_resource type="Script" uid="uid://ceiamqs3hpxit" path="res://Login/login.gd" id="1_q60jw"]
 [ext_resource type="Texture2D" uid="uid://qk7jkevybcb3" path="res://assets/logo.png" id="2_obmrt"]
 [ext_resource type="PackedScene" uid="uid://b5y7b0oboujha" path="res://Map/TileMap/backgroundMap.tscn" id="2_y3tpq"]
+[ext_resource type="Script" uid="uid://1lgw1lqpnjye" path="res://Login/login_camera.gd" id="3_r1b3v"]
 
 [node name="Login" type="Control"]
 layout_mode = 3
@@ -15,97 +16,104 @@ script = ExtResource("1_q60jw")
 
 [node name="backgroundMap" parent="." instance=ExtResource("2_y3tpq")]
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
-layout_mode = 1
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(574, 314)
+zoom = Vector2(1.8, 1.8)
+script = ExtResource("3_r1b3v")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="CenterContainer" type="CenterContainer" parent="UI"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/CenterContainer"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Logo" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+[node name="Logo" type="TextureRect" parent="UI/CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(200, 100)
 layout_mode = 2
 texture = ExtResource("2_obmrt")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="FormContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="FormContainer" type="VBoxContainer" parent="UI/CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="UsernameContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+[node name="UsernameContainer" type="VBoxContainer" parent="UI/CenterContainer/VBoxContainer/FormContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
+[node name="Label" type="Label" parent="UI/CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
 layout_mode = 2
 text = "Tên đăng nhập"
 
-[node name="UsernameField" type="LineEdit" parent="CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
+[node name="UsernameField" type="LineEdit" parent="UI/CenterContainer/VBoxContainer/FormContainer/UsernameContainer"]
 layout_mode = 2
 
-[node name="PasswordContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+[node name="PasswordContainer" type="VBoxContainer" parent="UI/CenterContainer/VBoxContainer/FormContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
+[node name="Label" type="Label" parent="UI/CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
 layout_mode = 2
 text = "Mật khẩu"
 
-[node name="PasswordField" type="LineEdit" parent="CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
+[node name="PasswordField" type="LineEdit" parent="UI/CenterContainer/VBoxContainer/FormContainer/PasswordContainer"]
 layout_mode = 2
 secret = true
 
-[node name="ServerContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/FormContainer"]
+[node name="ServerContainer" type="VBoxContainer" parent="UI/CenterContainer/VBoxContainer/FormContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+[node name="Label" type="Label" parent="UI/CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
 layout_mode = 2
 text = "Chọn máy chủ"
 
-[node name="ServerOptionButton" type="OptionButton" parent="CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
+[node name="ServerOptionButton" type="OptionButton" parent="UI/CenterContainer/VBoxContainer/FormContainer/ServerContainer"]
 layout_mode = 2
 
-[node name="ConnectionStatus" type="Label" parent="CenterContainer/VBoxContainer/FormContainer"]
+[node name="ConnectionStatus" type="Label" parent="UI/CenterContainer/VBoxContainer/FormContainer"]
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="ButtonsContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="ButtonsContainer" type="HBoxContainer" parent="UI/CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="btnLogin" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
+[node name="btnLogin" type="Button" parent="UI/CenterContainer/VBoxContainer/ButtonsContainer"]
 custom_minimum_size = Vector2(120, 40)
 layout_mode = 2
 text = "Đăng nhập"
 
-[node name="btnRegister" type="Button" parent="CenterContainer/VBoxContainer/ButtonsContainer"]
+[node name="btnRegister" type="Button" parent="UI/CenterContainer/VBoxContainer/ButtonsContainer"]
 custom_minimum_size = Vector2(120, 40)
 layout_mode = 2
 text = "Đăng ký"
 
-[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="UI/CenterContainer/VBoxContainer"]
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="LoginDialog" type="Popup" parent="."]
+[node name="LoginDialog" type="Popup" parent="UI"]
 title = "Đăng nhập"
+position = Vector2i(0, 36)
 size = Vector2i(300, 188)
 visible = true
 unresizable = false
 borderless = false
 
-[node name="VBoxContainer" type="VBoxContainer" parent="LoginDialog"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/LoginDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -113,19 +121,19 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="StatusLabel" type="Label" parent="LoginDialog/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="UI/LoginDialog/VBoxContainer"]
 layout_mode = 2
 text = "Đang kết nối đến máy chủ..."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="CancelButton" type="Button" parent="LoginDialog/VBoxContainer"]
+[node name="CancelButton" type="Button" parent="UI/LoginDialog/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Hủy"
 
-[connection signal="item_selected" from="CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton" to="." method="_on_server_option_button_item_selected"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/btnLogin" to="." method="_on_LoginButton_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonsContainer/btnRegister" to="." method="_on_btn_register_pressed"]
-[connection signal="pressed" from="LoginDialog/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="item_selected" from="UI/CenterContainer/VBoxContainer/FormContainer/ServerContainer/ServerOptionButton" to="." method="_on_server_option_button_item_selected"]
+[connection signal="pressed" from="UI/CenterContainer/VBoxContainer/ButtonsContainer/btnLogin" to="." method="_on_LoginButton_pressed"]
+[connection signal="pressed" from="UI/CenterContainer/VBoxContainer/ButtonsContainer/btnRegister" to="." method="_on_btn_register_pressed"]
+[connection signal="pressed" from="UI/LoginDialog/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
