@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://xxxx"]
 
-[ext_resource type="Script" path="res://UI/game_menu.gd" id="1_menu"]
-[ext_resource type="Texture2D" path="res://assets/ui/menu_icon.png" id="2_icon"]
+[ext_resource type="Script" uid="uid://dcemlq6wxeiwm" path="res://UI/game_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" uid="uid://buqu50lrevly4" path="res://assets/UI/menu.png" id="2_svf8u"]
 
 [node name="GameMenu" type="Control"]
 layout_mode = 3
@@ -22,7 +22,7 @@ offset_top = 10.0
 offset_right = -10.0
 offset_bottom = 60.0
 grow_horizontal = 0
-icon = ExtResource("2_icon")
+icon = ExtResource("2_svf8u")
 expand_icon = true
 
 [node name="MenuBar" type="VBoxContainer" parent="."]

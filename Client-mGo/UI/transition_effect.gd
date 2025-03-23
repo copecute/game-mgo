@@ -14,10 +14,11 @@ func _ready():
 	# Lấy kích thước màn hình
 	screen_size = get_viewport_rect().size
 	
-	# Ẩn hiệu ứng khi khởi tạo
-	reset_door_positions()
-	$Label.modulate.a = 0
-	hide()
+	# thiết lập ban đầu - màn hình đen hoàn toàn
+	show_fullscreen_black()
+	$Label.text = "Đang tải map..."
+	$Label.modulate.a = 1.0
+	show()
 	
 	# Kết nối với Network để nhận thông tin chuyển khu
 	Network.server_message_received.connect(_on_server_message_received)
@@ -38,9 +39,7 @@ func _process(delta):
 		
 		# Cập nhật độ trong suốt của nhãn
 		if animation_progress < 0.5:
-			$Label.modulate.a = min(animation_progress * 2, 1.0)
-		else:
-			$Label.modulate.a = max(1.0 - (animation_progress - 0.5) * 2, 0.0)
+			$Label.modulate.a = max(1.0 - animation_progress * 2, 0.0)
 		
 		# Phát tín hiệu halfway khi đến giữa animation
 		if animation_progress >= 0.5 and not halfway_emitted:
@@ -51,36 +50,43 @@ func _process(delta):
 		if animation_progress >= 1.0:
 			is_transitioning = false
 			emit_signal("transition_finished")
+			hide() # Ẩn hiệu ứng sau khi hoàn tất
 
 func _on_screen_resized():
 	# Cập nhật kích thước màn hình
 	screen_size = get_viewport_rect().size
 	
-	# Cập nhật vị trí cửa
-	if not is_transitioning:
-		reset_door_positions()
+	# Cập nhật vị trí cửa ngay lập tức
+	if is_transitioning:
+		# Nếu đang trong quá trình chuyển cảnh, cập nhật vị trí theo tiến trình hiện tại
+		update_door_positions(animation_progress)
+	else:
+		# Nếu không đang transition nhưng vẫn hiển thị, có thể là màn hình đen ban đầu
+		if visible:
+			show_fullscreen_black()
 
-func reset_door_positions():
-	# Đặt lại vị trí ban đầu của cửa
+# hiển thị màn hình đen đầy đủ
+func show_fullscreen_black():
+	# đặt cả hai cửa để che phủ toàn bộ màn hình
 	var center_y = screen_size.y / 2
 	
-	# Cửa trên nằm từ trên xuống đến giữa màn hình
+	# cửa trên che nửa trên màn hình
 	$TopRect.position = Vector2(0, 0)
 	$TopRect.size = Vector2(screen_size.x, center_y)
 	
-	# Cửa dưới nằm từ giữa màn hình xuống dưới
+	# cửa dưới che nửa dưới màn hình
 	$BottomRect.position = Vector2(0, center_y)
 	$BottomRect.size = Vector2(screen_size.x, center_y)
 
 func update_door_positions(progress: float):
-	# Cập nhật vị trí cửa theo tiến trình animation (0.0 - 1.0)
+	# hiệu ứng chỉ mở cửa từ giữa ra ngoài
 	var center_y = screen_size.y / 2
 	
-	# Cửa trên di chuyển lên trên
+	# cửa trên di chuyển lên
 	$TopRect.position.y = lerp(0.0, -center_y, progress)
 	$TopRect.size = Vector2(screen_size.x, center_y)
 	
-	# Cửa dưới di chuyển xuống dưới
+	# cửa dưới di chuyển xuống
 	$BottomRect.position.y = lerp(center_y, screen_size.y, progress)
 	$BottomRect.size = Vector2(screen_size.x, center_y)
 
@@ -91,11 +97,11 @@ func _on_server_message_received(message):
 		
 	match data["type"]:
 		"map_selected":
-			# Khi vào map mới
+			# map đã được chọn thành công, bắt đầu mở cửa
 			play_transition("Đang tải map...")
 			
 		"instance_changed":
-			# Khi chuyển khu
+			# khu đã được chọn thành công, bắt đầu mở cửa
 			play_transition("Đang chuyển khu...")
 
 func play_transition(message = ""):
@@ -113,9 +119,12 @@ func play_transition(message = ""):
 	if message != "":
 		$Label.text = message
 	
-	# Đặt lại vị trí ban đầu
-	reset_door_positions()
-	$Label.modulate.a = 0
+	# Cập nhật kích thước màn hình
+	screen_size = get_viewport_rect().size
+	
+	# đảm bảo màn hình đen hoàn toàn
+	show_fullscreen_black()
+	$Label.modulate.a = 1.0
 	
 	# Hiển thị hiệu ứng
 	show() 

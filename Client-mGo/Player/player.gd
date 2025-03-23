@@ -25,17 +25,28 @@ func _ready():
 	last_sent_position = global_position
 	
 	# thiết lập giới hạn camera
-	var viewport_size = get_viewport_rect().size
-	camera.limit_left = 0
-	camera.limit_top = 0
-	camera.limit_right = MAP_WIDTH
-	camera.limit_bottom = MAP_HEIGHT
+	update_camera_limits()
+	
+	# kết nối với signals
+	get_tree().root.size_changed.connect(_on_viewport_size_changed)
 	
 	# kết nối với joystick nếu là người chơi hiện tại
 	if username == Network.current_username:
 		var joystick = get_node_or_null("/root/Map/UI/Joystick")
 		if joystick:
 			joystick.joystick_moved.connect(_on_joystick_moved)
+
+func _on_viewport_size_changed():
+	# cập nhật lại giới hạn camera khi kích thước màn hình thay đổi
+	update_camera_limits()
+
+func update_camera_limits():
+	# thiết lập giới hạn camera
+	var viewport_size = get_viewport_rect().size  
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = MAP_WIDTH
+	camera.limit_bottom = MAP_HEIGHT
 
 func _on_joystick_moved(vector):
 	joystick_direction = vector
