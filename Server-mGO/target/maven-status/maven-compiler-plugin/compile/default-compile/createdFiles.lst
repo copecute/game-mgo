@@ -1,5 +1,8 @@
 com\copecute\server\database\Database.class
+com\copecute\server\mgo\GameWorld.class
 com\copecute\server\mgo\Player.class
+com\copecute\server\mgo\WebSocketHandler.class
 com\copecute\server\database\UserDAO.class
+com\copecute\server\mgo\ServerMGO.class
 com\copecute\server\mgo\Message.class
 com\copecute\server\mgo\ServerMGO$1.class

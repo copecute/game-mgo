@@ -25,8 +25,13 @@ func _on_chat_button_pressed():
 
 func _on_logout_button_pressed():
 	emit_signal("logout_pressed")
-	Network.websocket.close()
-	get_tree().change_scene_to_file("res://Login/Login.tscn") 
+	# lưu trữ đường dẫn scene để chuyển đến
+	var next_scene = "res://Login/Login.tscn"
+	# chuyển scene trước khi đóng kết nối
+	get_tree().change_scene_to_file(next_scene)
+	# đóng kết nối websocket sau
+	if Network.is_connected:
+		Network.websocket.close()
 
 func _on_btn_chat_pressed() -> void:
 		emit_signal("chat_pressed")

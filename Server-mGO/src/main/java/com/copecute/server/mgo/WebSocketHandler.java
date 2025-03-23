@@ -6,6 +6,7 @@ import io.netty.handler.codec.http.websocketx.*;
 
 public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     private String username;
+    private String currentMap = null;
     private final GameWorld gameWorld = GameWorld.getInstance();
 
     @Override
@@ -27,6 +28,15 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
                 case "chat":
                     handleChat(message.getData());
                     break;
+                case "select_map":
+                    handleSelectMap(ctx.channel(), message.getData());
+                    break;
+                case "ping":
+                    handlePing(ctx.channel());
+                    break;
+                case "pong":
+                    // Nhận phản hồi pong, không cần xử lý gì
+                    break;
                 default:
                     System.out.println("Không xử lý được tin nhắn: " + message.getType());
             }
@@ -42,55 +52,40 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
         String password = parts[1];
         
         if (UserDAO.authenticate(username, password)) {
-            if (!gameWorld.hasPlayer(username)) {
+            if (!gameWorld.hasPlayerInAnyMap(username)) {
                 this.username = username;
                 
-                // 1. Thêm người chơi mới vào game
-                Player newPlayer = new Player(username, ctx.channel());
-                gameWorld.addPlayerSilently(username, newPlayer);
-                
-                // 2. Gửi thông tin tất cả người chơi hiện có cho người mới
-                for (Player existingPlayer : gameWorld.getPlayers()) {
-                    if (!existingPlayer.getUsername().equals(username)) {
-                        // Gửi thông tin join trước
-                        ctx.channel().writeAndFlush(new TextWebSocketFrame(
-                            new Message("player_joined", existingPlayer.getUsername()).toJson()
-                        ));
-                        
-                        // Sau đó gửi vị trí
-                        String posData = existingPlayer.getUsername() + "," + 
-                                       existingPlayer.getX() + "," + 
-                                       existingPlayer.getY();
-                        ctx.channel().writeAndFlush(new TextWebSocketFrame(
-                            new Message("player_position", posData).toJson()
-                        ));
-                        
-                        System.out.println("Sent existing player to new player: " + existingPlayer.getUsername()); // Debug log
-                    }
-                }
-                
-                // 3. Broadcast thông tin người chơi mới cho những người khác
-                String newPlayerPos = username + "," + newPlayer.getX() + "," + newPlayer.getY();
-                Message joinMsg = new Message("player_joined", username);
-                Message posMsg = new Message("player_position", newPlayerPos);
-                
-                for (Player player : gameWorld.getPlayers()) {
-                    if (!player.getUsername().equals(username)) {
-                        Channel playerChannel = player.getChannel();
-                        playerChannel.writeAndFlush(new TextWebSocketFrame(joinMsg.toJson()));
-                        playerChannel.writeAndFlush(new TextWebSocketFrame(posMsg.toJson()));
-                    }
-                }
-                
-                // 4. Cuối cùng mới gửi thông báo đăng nhập thành công
+                // Không thêm vào thế giới game ngay - sẽ thêm khi chọn map
                 sendLoginResponse(ctx, true, "Đăng nhập thành công");
-                
             } else {
                 sendLoginResponse(ctx, false, "Tài khoản đã đăng nhập ở nơi khác");
             }
         } else {
             sendLoginResponse(ctx, false, "Sai tên đăng nhập hoặc mật khẩu");
         }
+    }
+    
+    private void handleSelectMap(Channel channel, String mapId) {
+        if (username == null) {
+            // Chưa đăng nhập, không thể chọn map
+            return;
+        }
+        
+        String oldMapId = currentMap;
+        currentMap = mapId;
+        
+        // Di chuyển người chơi đến map mới
+        gameWorld.movePlayerToMap(username, oldMapId, currentMap, channel);
+        
+        // Gửi xác nhận đã chọn map
+        channel.writeAndFlush(new TextWebSocketFrame(
+            new Message("map_selected", mapId).toJson()));
+    }
+    
+    private void handlePing(Channel channel) {
+        // Gửi phản hồi pong
+        channel.writeAndFlush(new TextWebSocketFrame(
+            new Message("pong", "keepalive").toJson()));
     }
     
     private void sendLoginResponse(ChannelHandlerContext ctx, boolean success, String message) {
@@ -116,26 +111,31 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<WebSocketFrame
     }
     
     private void handleMove(String data) {
-        if (username != null) {
+        if (username != null && currentMap != null) {
             String[] parts = data.split(",");
             float x = Float.parseFloat(parts[0]);
             float y = Float.parseFloat(parts[1]);
-            gameWorld.updatePlayerPosition(username, x, y);
+            gameWorld.updatePlayerPosition(currentMap, username, x, y);
         }
     }
     
     private void handleChat(String data) {
-        if (username != null) {
-            // Broadcast chat message to all players
+        if (username != null && currentMap != null) {
+            // Broadcast chat message đến tất cả người chơi trong map
             Message chatMsg = new Message("chat", data);
-            gameWorld.broadcast(chatMsg);
+            gameWorld.broadcastToMap(currentMap, chatMsg);
         }
     }
     
     private void handleLogout() {
         if (username != null) {
-            gameWorld.removePlayer(username);
+            if (currentMap != null) {
+                gameWorld.removePlayer(currentMap, username);
+            } else {
+                gameWorld.removePlayerFromAllMaps(username);
+            }
             username = null;
+            currentMap = null;
         }
     }
 

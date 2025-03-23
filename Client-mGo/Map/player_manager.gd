@@ -11,13 +11,26 @@ func _ready():
 	Network.server_message_received.connect(_on_server_message_received)
 	print("PlayerManager: Current username is ", Network.current_username)
 	
-	# Xử lý lại tất cả message đã nhận theo thứ tự
+	# xóa tất cả người chơi hiện tại khi chuyển map
+	clear_all_players()
+	
+	# xử lý lại tất cả message đã nhận theo thứ tự
 	for msg in received_messages:
 		_handle_message(msg)
 	received_messages.clear()
 	
-	# Tạo player cho người chơi hiện tại sau khi xử lý các player khác
+	# tạo player cho người chơi hiện tại sau khi xử lý các player khác
 	spawn_player(Network.current_username)
+
+func clear_all_players():
+	# xóa tất cả người chơi hiện tại (trừ người chơi hiện tại)
+	for username in players.keys():
+		if username != Network.current_username:
+			if players[username] != null:
+				players[username].queue_free()
+	
+	# khởi tạo lại dictionary rỗng
+	players = {}
 
 func _handle_message(msg: String) -> void:
 	var data = JSON.parse_string(msg)
@@ -47,7 +60,7 @@ func _handle_message(msg: String) -> void:
 			if username != Network.current_username:
 				if username in players:
 					players[username].set_meta("target_position", pos)
-				elif username not in players:  # Nếu player chưa được tạo, tạo mới
+				elif username not in players:  # nếu player chưa được tạo, tạo mới
 					spawn_player(username)
 					players[username].global_position = pos
 					players[username].set_meta("target_position", pos)
@@ -63,7 +76,7 @@ func _handle_message(msg: String) -> void:
 func _on_server_message_received(message: String) -> void:
 	print("PlayerManager received message: ", message)
 	
-	if not is_inside_tree():  # Nếu scene chưa ready, lưu message để xử lý sau
+	if not is_inside_tree():  # nếu scene chưa ready, lưu message để xử lý sau
 		received_messages.append(message)
 		return
 		
