@@ -89,12 +89,26 @@ func _ready():
 		if button:
 			button.focus_mode = Control.FOCUS_NONE
 	
+	# Trước khi cập nhật vị trí
+	for button_name in maps.keys():
+		call_deferred("recreate_button_structure", button_name)
+	
+	# Đợi tất cả button được tạo lại cấu trúc
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	# QUAN TRỌNG: Cập nhật vị trí các button TRƯỚC khi hiệu ứng chuyển cảnh
+	# và trước khi chọn khu vực đầu tiên
+	update_button_positions()
+	
+	# kết nối với tín hiệu thay đổi kích thước màn hình
+	get_tree().root.size_changed.connect(_on_viewport_size_changed)
+	
 	# Phát hiệu ứng chuyển cảnh khi vào màn hình chọn map
 	$UI/TransitionEffect.play_transition("Chọn khu vực...")
 	
-	# Tự động chọn khu giải trí (sau khi hiệu ứng bắt đầu)
-	await get_tree().create_timer(0.2).timeout # Đợi một chút để UI được khởi tạo
-	_select_area("KhuGiaiTri")
+	# Đảm bảo các button đã được đặt vị trí trước khi chọn khu vực đầu tiên
+	call_deferred("_select_initial_area")
 
 func _input(event):
 	# Xử lý input phím mũi tên
@@ -370,3 +384,181 @@ func _navigate_selection(direction):
 	# Lấy tên nút tiếp theo từ ma trận liên kết
 	var next_button_name = navigation_map[current_button_name][direction_index]
 	_select_area(next_button_name)
+
+# hàm mới để cập nhật vị trí các button theo map
+func update_button_positions():
+	# đảm bảo các button nằm trong node MapButtons
+	var map_buttons_control = $MapButtons
+	
+	# thiết lập lại vị trí của MapButtons để nó có cùng kích thước với map
+	map_buttons_control.position = Vector2.ZERO
+	map_buttons_control.size = Vector2(map_width, map_height)
+	
+	# Đảm bảo layout đúng
+	map_buttons_control.size_flags_horizontal = Control.SIZE_FILL
+	map_buttons_control.size_flags_vertical = Control.SIZE_FILL
+	
+	# vị trí tương đối cho từng nút (tỷ lệ so với kích thước map)
+	var button_positions = {
+		"KhuNhaO": Vector2(0.31, 0.32),
+		"KhuSinhThai": Vector2(0.65, 0.32),
+		"KhuGiaiTri": Vector2(0.48, 0.43),
+		"CongVien": Vector2(0.31, 0.5),
+		"KhuThuongMai": Vector2(0.65, 0.5),
+		"NongTrai": Vector2(0.65, 0.67),
+		"KhuHangCo": Vector2(0.31, 0.67)
+	}
+	
+	# áp dụng vị trí vào các nút
+	for button_name in button_positions.keys():
+		var button = map_buttons_control.get_node_or_null(button_name)
+		if button:
+			# cập nhật các thuộc tính anchor trước
+			button.anchor_left = 0
+			button.anchor_top = 0
+			button.anchor_right = 0
+			button.anchor_bottom = 0
+			
+			# đợi một frame để thuộc tính được áp dụng
+			await get_tree().process_frame
+			
+			var rel_pos = button_positions[button_name]
+			var abs_pos = Vector2(rel_pos.x * map_width, rel_pos.y * map_height)
+			
+			# đảm bảo kích thước button đã được tính
+			var button_size = button.size
+			if button_size.x == 0 or button_size.y == 0:
+				button_size = Vector2(100, 80) # kích thước mặc định nếu chưa có
+			
+			# Trừ đi một nửa kích thước của button để canh giữa
+			abs_pos -= Vector2(button_size.x / 2, button_size.y / 2)
+			
+			# thiết lập vị trí mới
+			button.position = abs_pos
+			
+			# Debug để kiểm tra vị trí
+			print("Button ", button_name, " đặt tại ", button.position, ", kích thước: ", button.size)
+
+	# Sau khi đã đặt vị trí cho tất cả button
+	update_button_contents()
+
+# cập nhật lại khi kích thước màn hình thay đổi
+func _on_viewport_size_changed():
+	# cập nhật lại zoom và vị trí camera
+	calculate_and_set_optimal_zoom()
+	
+	# cập nhật lại vị trí các button
+	update_button_positions()
+
+func _select_initial_area():
+	# Chờ một frame để đảm bảo UI đã được khởi tạo đầy đủ
+	await get_tree().process_frame
+	# Tự động chọn khu giải trí 
+	_select_area("KhuGiaiTri")
+
+# Hàm cập nhật vị trí các thành phần trong button
+func update_button_contents():
+	for button_name in maps.keys():
+		var button = $MapButtons.get_node_or_null(button_name)
+		if button:
+			# Lấy các thành phần con
+			var label = button.get_node_or_null("Label")
+			var img = button.get_node_or_null("img" + button_name)
+			
+			if label:
+				# Thiết lập vị trí label ở trên button
+				label.anchor_left = 0
+				label.anchor_top = 0
+				label.anchor_right = 1
+				label.anchor_bottom = 0.5
+				
+				# Điều chỉnh offset để nhãn hiển thị ở đúng vị trí
+				label.offset_top = 5
+				label.offset_bottom = 30
+			
+			if img:
+				# Đặt hình ảnh ở dưới nhãn
+				img.anchor_left = 0.5
+				img.anchor_top = 0.5
+				img.anchor_right = 0.5
+				img.anchor_bottom = 0.5
+				
+				# Đẩy hình ảnh xuống dưới nhãn
+				var texture_height = img.texture.get_height() if img.texture else 50
+				img.offset_top = -texture_height / 2 + 15
+				img.offset_bottom = texture_height / 2 + 15
+
+# Cập nhật hàm recreate_button_structure để giữ lại label gốc
+func recreate_button_structure(button_name):
+	var button = $MapButtons.get_node_or_null(button_name)
+	if not button:
+		return
+		
+	# Lấy kích thước button hiện tại để giữ nguyên
+	var button_size = button.size
+	
+	# Lưu lại label hiện có
+	var existing_label = button.get_node_or_null("Label")
+	var label_text = ""
+	
+	# Lưu nội dung text nếu label tồn tại
+	if existing_label:
+		label_text = existing_label.text
+	
+	# Xóa các node con ngoại trừ label
+	for child in button.get_children():
+		if child.name != "Label":
+			child.queue_free()
+	
+	# Nếu không có label sẵn, tạo mới
+	if not existing_label:
+		var label = Label.new()
+		label.name = "Label"
+		label.text = button_name.capitalize().replace("Khu", "Khu ")
+		if button_name == "CongVien":
+			label.text = "Công viên"
+		elif button_name == "NongTrai": 
+			label.text = "Nông trại"
+			
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		
+		# Thiết lập styling cho label
+		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		label.add_theme_constant_override("outline_size", 2)
+		label.add_theme_font_size_override("font_size", 14)
+		
+		button.add_child(label)
+	
+	# Tạo texture rect mới
+	var texture_path = "res://assets/UI/map_" + button_name.to_lower() + ".png"
+	var img = TextureRect.new()
+	img.name = "img" + button_name
+	
+	# Kiểm tra xem texture có tồn tại không
+	if ResourceLoader.exists(texture_path):
+		img.texture = load(texture_path)
+	else:
+		# Sử dụng texture mặc định nếu không tìm thấy
+		img.texture = load("res://assets/UI/map_khugiaitri.png")
+	
+	# Thiết lập rect cho image
+	img.anchor_left = 0.5
+	img.anchor_top = 0.5
+	img.anchor_right = 0.5
+	img.anchor_bottom = 0.5
+	img.expand_mode = TextureRect.EXPAND_KEEP_SIZE
+	img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	
+	# Điều chỉnh kích thước
+	var tex_size = Vector2(img.texture.get_width(), img.texture.get_height()) 
+	img.offset_left = -tex_size.x / 2
+	img.offset_top = -tex_size.y / 2 + 10 # Đẩy xuống dưới một chút để tạo khoảng cách với label
+	img.offset_right = tex_size.x / 2
+	img.offset_bottom = tex_size.y / 2 + 10
+	
+	button.add_child(img)
+	
+	# Thiết lập kích thước button
+	button.custom_minimum_size = Vector2(100, 80)
+	button.size = button_size

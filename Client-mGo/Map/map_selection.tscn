@@ -18,26 +18,23 @@ script = ExtResource("1_map_sel")
 
 [node name="MapButtons" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 0
 mouse_filter = 2
 
 [node name="KhuNhaO" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.272569
-anchor_top = 0.242284
-anchor_right = 0.359965
-anchor_bottom = 0.362531
+anchor_left = 0.302951
+anchor_top = 0.319444
+anchor_right = 0.390347
+anchor_bottom = 0.439691
 offset_right = 0.319946
 offset_bottom = 0.0799942
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/KhuNhaO"]
 layout_mode = 1
@@ -65,14 +62,15 @@ metadata/_edit_use_anchors_ = true
 [node name="KhuSinhThai" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.746528
-anchor_top = 0.251543
-anchor_right = 0.833334
-anchor_bottom = 0.379629
+anchor_left = 0.606771
+anchor_top = 0.322531
+anchor_right = 0.693577
+anchor_bottom = 0.450617
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/KhuSinhThai"]
 layout_mode = 1
@@ -98,14 +96,15 @@ texture = ExtResource("3_qxb4x")
 [node name="KhuGiaiTri" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.505208
-anchor_top = 0.361111
-anchor_right = 0.605034
-anchor_bottom = 0.499999
+anchor_left = 0.434896
+anchor_top = 0.425926
+anchor_right = 0.534722
+anchor_bottom = 0.564814
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/KhuGiaiTri"]
 layout_mode = 1
@@ -131,14 +130,15 @@ texture = ExtResource("3_qxb4x")
 [node name="CongVien" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.264757
-anchor_top = 0.438272
-anchor_right = 0.364584
-anchor_bottom = 0.566358
+anchor_left = 0.268229
+anchor_top = 0.481481
+anchor_right = 0.368056
+anchor_bottom = 0.609567
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/CongVien"]
 layout_mode = 1
@@ -164,14 +164,15 @@ texture = ExtResource("3_qxb4x")
 [node name="KhuThuongMai" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.716146
-anchor_top = 0.507716
-anchor_right = 0.835938
-anchor_bottom = 0.646605
+anchor_left = 0.58941
+anchor_top = 0.520062
+anchor_right = 0.709202
+anchor_bottom = 0.658951
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/KhuThuongMai"]
 layout_mode = 1
@@ -197,14 +198,15 @@ texture = ExtResource("3_qxb4x")
 [node name="NongTrai" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.52691
-anchor_top = 0.680556
-anchor_right = 0.606771
-anchor_bottom = 0.808642
+anchor_left = 0.522569
+anchor_top = 0.666667
+anchor_right = 0.60243
+anchor_bottom = 0.794753
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/NongTrai"]
 layout_mode = 1
@@ -231,14 +233,11 @@ texture = ExtResource("3_qxb4x")
 [node name="KhuHangCo" type="Button" parent="MapButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.365451
-anchor_top = 0.654321
-anchor_right = 0.465277
-anchor_bottom = 0.780864
 focus_mode = 0
 flat = true
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MapButtons/KhuHangCo"]
 layout_mode = 1
@@ -278,8 +277,8 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640, 360)
-zoom = Vector2(2, 2)
+position = Vector2(555, 350)
+zoom = Vector2(1.5, 1.5)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
